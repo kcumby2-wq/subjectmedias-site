@@ -2163,7 +2163,7 @@
 
         <div class="pkg-card">
           <div class="pkg-name">Photo Coverage</div>
-          <div class="pkg-price"><sup>$</sup>49.99</div>
+          <div class="pkg-price"><sup>$</sup>49</div>
           <div class="pkg-includes">INCLUDES:</div>
           <ul class="pkg-features">
             <li>Full event coverage</li>
@@ -2175,7 +2175,7 @@
 
         <div class="pkg-card">
           <div class="pkg-name">Video Coverage</div>
-          <div class="pkg-price"><sup>$</sup>99.99</div>
+          <div class="pkg-price"><sup>$</sup>99</div>
           <div class="pkg-includes">INCLUDES:</div>
           <ul class="pkg-features">
             <li>Game or event coverage (1 event)</li>
@@ -2189,7 +2189,7 @@
         <div class="pkg-card featured">
           <div class="pkg-badge">MOST POPULAR</div>
           <div class="pkg-name">Elite Coverage</div>
-          <div class="pkg-price"><sup>$</sup>139.99</div>
+          <div class="pkg-price"><sup>$</sup>139</div>
           <div class="pkg-includes">INCLUDES:</div>
           <ul class="pkg-features">
             <li>Full event photo &amp; video coverage</li>
@@ -2202,7 +2202,7 @@
 
         <div class="pkg-card">
           <div class="pkg-name">Player Transcript</div>
-          <div class="pkg-price"><sup>$</sup>249.99</div>
+          <div class="pkg-price"><sup>$</sup>249</div>
           <div class="pkg-tag" style="font-size:11px;letter-spacing:.08em;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:8px;">One-Time Purchase · 48-Hr Turnaround</div>
           <div class="pkg-includes">INCLUDES:</div>
           <ul class="pkg-features">
@@ -2243,7 +2243,7 @@
       <div class="pkg-grid cols-1">
         <div class="pkg-card featured">
           <div class="pkg-name">Team Coverage Package</div>
-          <div class="pkg-price"><sup>$</sup>499.99</div>
+          <div class="pkg-price"><sup>$</sup>399</div>
           <div class="pkg-includes">INCLUDES:</div>
           <ul class="pkg-features">
             <li>Professionally edited team photos</li>
@@ -2288,7 +2288,7 @@
       <div class="pkg-grid cols-1">
         <div class="pkg-card featured">
           <div class="pkg-name">Event Coverage Package</div>
-          <div class="pkg-price"><sup>$</sup>1,499.99</div>
+          <div class="pkg-price"><sup>$</sup>999</div>
           <div class="pkg-includes">INCLUDES:</div>
           <ul class="pkg-features">
             <li>Everything in Team Photo &amp; Team Video Packages</li>
@@ -2486,4 +2486,227 @@
     const slides = track.querySelectorAll('.photo-break-slide');
     slides.forEach((_, i) => {
       const d = document.createElement('button');
-      d.className = 'pb-dot' + (i === 0 ? ' 
+      d.className = 'pb-dot' + (i === 0 ? ' active' : '');
+      d.onclick = () => { onsiteIdx = i - 1; onsiteCarousel(1); };
+      dotsEl.appendChild(d);
+    });
+  })();
+
+  /* ── BOOKING / PRICING ───────────────────── */
+  function showBookView(type) {
+    document.getElementById('book-picker-screen').style.display = 'none';
+    ['individual','team','event'].forEach(v => {
+      document.getElementById('book-view-' + v).classList.remove('active');
+    });
+    document.getElementById('book-view-' + type).classList.add('active');
+    document.getElementById('book').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function showPicker() {
+    ['individual','team','event'].forEach(v => {
+      document.getElementById('book-view-' + v).classList.remove('active');
+    });
+    document.getElementById('book-picker-screen').style.display = '';
+    document.getElementById('book').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function switchTab(type) { showBookView(type); }
+
+  /* ── FORM HANDLER ────────────────────────── */
+  function handleSubmit(e) {
+    e.preventDefault();
+    const name  = document.getElementById('fname').value.trim();
+    const email = document.getElementById('femail').value.trim();
+    const msg   = document.getElementById('fmsg').value.trim();
+    if (!name || !email || !msg) {
+      alert('Please fill in your name, email, and message.');
+      return;
+    }
+    const subject = encodeURIComponent('Subject Medias Coverage Inquiry');
+    const body = encodeURIComponent('Name: ' + name + '\nEmail: ' + email + '\nPhone: ' + document.getElementById('fphone').value + '\nType: ' + document.getElementById('ftype').value + '\n\n' + msg);
+    window.location.href = 'mailto:hello@subjectmedias.com?subject=' + subject + '&body=' + body;
+  }
+</script>
+
+<!-- ══════════════════════════
+     10% OFFER POPUP — triggers at 30s
+══════════════════════════ -->
+<style>
+  .offer-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(0,0,0,0.75);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    opacity: 0; visibility: hidden;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+  }
+  .offer-overlay.show { opacity: 1; visibility: visible; }
+  .offer-modal {
+    background: var(--n800);
+    border: 1px solid rgba(47,163,232,0.25);
+    border-radius: 20px;
+    max-width: 520px; width: 100%;
+    padding: 48px 40px 40px;
+    position: relative;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+    animation: offerIn 0.4s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  @keyframes offerIn {
+    from { transform: translateY(32px) scale(0.96); opacity: 0; }
+    to   { transform: translateY(0)    scale(1);    opacity: 1; }
+  }
+  .offer-close {
+    position: absolute; top: 16px; right: 16px;
+    background: rgba(255,255,255,0.06); border: none; border-radius: 50%;
+    width: 32px; height: 32px; cursor: pointer; color: rgba(255,255,255,0.5);
+    font-size: 18px; line-height: 32px; text-align: center;
+    transition: background 0.2s;
+  }
+  .offer-close:hover { background: rgba(255,255,255,0.12); color: #fff; }
+  .offer-badge {
+    display: inline-block;
+    background: var(--blue); color: var(--black);
+    font-family: 'Anton', sans-serif; font-size: 13px; letter-spacing: .08em;
+    padding: 4px 12px; border-radius: 40px; margin-bottom: 16px;
+  }
+  .offer-headline {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(28px, 5vw, 42px);
+    line-height: 1.05; color: var(--white);
+    margin-bottom: 8px;
+  }
+  .offer-headline span { color: var(--blue); }
+  .offer-sub {
+    color: rgba(255,255,255,0.5); font-size: 14px; margin-bottom: 28px; line-height: 1.6;
+  }
+  .offer-form .form-row { display: flex; gap: 3px; margin-bottom: 3px; }
+  .offer-form .form-field { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+  .offer-form label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+  .offer-form input, .offer-form select, .offer-form textarea {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; color: var(--white);
+    font-family: 'Inter', sans-serif; font-size: 14px;
+    padding: 10px 14px; width: 100%; outline: none;
+    transition: border-color 0.2s;
+  }
+  .offer-form input:focus, .offer-form select:focus, .offer-form textarea:focus {
+    border-color: var(--blue);
+  }
+  .offer-form textarea { resize: vertical; min-height: 80px; }
+  .offer-submit {
+    width: 100%; margin-top: 16px;
+    background: var(--blue); color: var(--black);
+    border: none; border-radius: 10px;
+    font-family: 'Anton', sans-serif; font-size: 16px; letter-spacing: .06em;
+    padding: 14px; cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .offer-submit:hover { opacity: 0.88; transform: translateY(-1px); }
+  .offer-fine {
+    text-align: center; font-size: 11px; color: rgba(255,255,255,0.25);
+    margin-top: 12px;
+  }
+  @media (max-width: 540px) {
+    .offer-modal { padding: 36px 24px 28px; }
+    .offer-form .form-row { flex-direction: column; }
+  }
+</style>
+
+<div class="offer-overlay" id="offerOverlay" role="dialog" aria-modal="true" aria-label="Exclusive offer">
+  <div class="offer-modal">
+    <button class="offer-close" onclick="closeOffer()" aria-label="Close">✕</button>
+    <div class="offer-badge">LIMITED OFFER</div>
+    <div class="offer-headline">Get <span>10% Off</span><br>Your First Package</div>
+    <p class="offer-sub">Still browsing? Lock in your discount now — drop your info and we'll reach out to get you booked.</p>
+    <form class="offer-form" onsubmit="submitOffer(event)">
+      <div class="form-row">
+        <div class="form-field">
+          <label for="oname">Name *</label>
+          <input type="text" id="oname" placeholder="Your full name" autocomplete="name" />
+        </div>
+        <div class="form-field">
+          <label for="oemail">Email *</label>
+          <input type="email" id="oemail" placeholder="you@email.com" autocomplete="email" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label for="ophone">Phone Number</label>
+          <input type="tel" id="ophone" placeholder="(555) 000-0000" autocomplete="tel" />
+        </div>
+        <div class="form-field">
+          <label for="otype">I'm a...</label>
+          <select id="otype">
+            <option value="">Select one</option>
+            <option>Parent / Athlete</option>
+            <option>Club Coach / AD</option>
+            <option>Tournament / Event Operator</option>
+            <option>Brand / Sponsor</option>
+            <option>Creator / Filmmaker</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label for="omsg">Tell us about your event *</label>
+          <textarea id="omsg" placeholder="Sport, date, location, what you're looking for..."></textarea>
+        </div>
+      </div>
+      <button type="submit" class="offer-submit">CLAIM MY 10% OFF →</button>
+      <p class="offer-fine">One-time offer · No spam · We respond within 24 hours</p>
+    </form>
+  </div>
+</div>
+
+<script>
+  // ── 30-second offer popup ──
+  (function() {
+    var shown = sessionStorage.getItem('offerShown');
+    if (!shown) {
+      setTimeout(function() {
+        document.getElementById('offerOverlay').classList.add('show');
+        sessionStorage.setItem('offerShown', '1');
+      }, 30000);
+    }
+  })();
+
+  function closeOffer() {
+    document.getElementById('offerOverlay').classList.remove('show');
+  }
+
+  // Close on backdrop click
+  document.getElementById('offerOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeOffer();
+  });
+
+  // Close on Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeOffer();
+  });
+
+  function submitOffer(e) {
+    e.preventDefault();
+    var name  = document.getElementById('oname').value.trim();
+    var email = document.getElementById('oemail').value.trim();
+    var msg   = document.getElementById('omsg').value.trim();
+    if (!name || !email || !msg) {
+      alert('Please fill in your name, email, and event details.');
+      return;
+    }
+    var subject = encodeURIComponent('10% Offer Claim — Subject Medias');
+    var body = encodeURIComponent(
+      '*** 10% DISCOUNT CLAIM ***\n\n' +
+      'Name: ' + name + '\n' +
+      'Email: ' + email + '\n' +
+      'Phone: ' + document.getElementById('ophone').value + '\n' +
+      'Type: ' + document.getElementById('otype').value + '\n\n' +
+      'Event Details:\n' + msg
+    );
+    window.location.href = 'mailto:hello@subjectmedias.com?subject=' + subject + '&body=' + body;
+    closeOffer();
+  }
+</script>
+
+</body>
+</html>
