@@ -1,0 +1,9 @@
+{
+  "name": "subjectmedias-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Subject Medias marketing site + admin (Vercel serverless).",
+  "dependencies": {
+    "stripe": "^17.7.0"
+  }
+}
