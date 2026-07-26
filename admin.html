@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Subject Medias · Live Sales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a1729;
+    --bg-2: #0f2040;
+    --panel: rgba(242,238,227,0.06);
+    --panel-line: rgba(242,238,227,0.15);
+    --cream: #f2eee3;
+    --cream-bright: #f8f5ec;
+    --fog: rgba(242,238,227,0.65);
+    --blue: #2fa3e8;
+    --blue-b: #4ec4ff;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --danger: #f87171;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); color: var(--cream); font-family: "Inter", sans-serif; font-size: 14px; line-height: 1.5; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+  body::before { content:""; position: fixed; inset: 0; background: radial-gradient(ellipse 70% 50% at 80% 0%, rgba(78,196,255,0.08) 0%, transparent 60%), linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%); z-index: -1; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 24px 20px 80px; }
+  header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+  h1 { font-family: "Anton", sans-serif; font-size: 32px; letter-spacing: 0.03em; text-transform: uppercase; color: var(--cream-bright); line-height: 1; }
+  .sub { color: var(--fog); font-size: 12px; font-family: "JetBrains Mono", monospace; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 6px; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; border: 1px solid var(--panel-line); color: var(--fog); }
+  .pill.ok { color: var(--ok); border-color: rgba(74,222,128,0.35); background: rgba(74,222,128,0.08); }
+  .pill.warn { color: var(--warn); border-color: rgba(251,191,36,0.35); background: rgba(251,191,36,0.08); }
+  .pill.err { color: var(--danger); border-color: rgba(248,113,113,0.35); background: rgba(248,113,113,0.08); }
+  .pill::before { content:""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; opacity: 0.9; }
+
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .kpi { background: var(--panel); border: 1px solid var(--panel-line); border-radius: 12px; padding: 16px 18px; }
+  .kpi .lbl { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--blue-b); margin-bottom: 8px; }
+  .kpi .val { font-family: "Anton", sans-serif; font-size: 30px; color: var(--cream-bright); line-height: 1; }
+
+  .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .btn { padding: 10px 16px; border-radius: 8px; border: 1px solid var(--panel-line); background: transparent; color: var(--cream); font: 500 13px "Inter", sans-serif; cursor: pointer; transition: all 0.15s; }
+  .btn:hover { background: var(--panel); border-color: var(--fog); }
+  .btn-primary { background: var(--blue); color: var(--bg); border-color: var(--blue); font-weight: 700; }
+  .btn-primary:hover { background: var(--blue-b); border-color: var(--blue-b); }
+  .btn-danger { color: var(--danger); border-color: rgba(248,113,113,0.3); }
+
+  select { background: rgba(242,238,227,0.04); border: 1px solid var(--panel-line); border-radius: 8px; padding: 10px 12px; color: var(--cream-bright); font: 500 13px "Inter", sans-serif; }
+
+  .card { background: var(--panel); border: 1px solid var(--panel-line); border-radius: 14px; padding: 4px 0; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 12px 16px; font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--fog); border-bottom: 1px solid var(--panel-line); font-weight: 600; }
+  td { padding: 14px 16px; border-bottom: 1px solid var(--panel-line); color: var(--cream); vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  tr:hover td { background: rgba(78,196,255,0.03); }
+  .amount { font-family: "JetBrains Mono", monospace; font-weight: 600; color: var(--cream-bright); }
+  .muted { color: var(--fog); font-size: 12px; font-family: "JetBrains Mono", monospace; }
+  .empty { text-align: center; padding: 60px 20px; color: var(--fog); }
+  .empty .big { font-family: "Anton", sans-serif; font-size: 24px; color: var(--cream-bright); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 6px; }
+
+  .gate { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+  .gate-box { width: 100%; max-width: 380px; background: var(--panel); border: 1px solid var(--panel-line); border-radius: 16px; padding: 32px 28px; }
+  .gate-box h2 { font-family: "Anton", sans-serif; font-size: 24px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--cream-bright); margin-bottom: 4px; }
+  .gate-box .sub { margin-bottom: 24px; }
+  .field label { display: block; font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--fog); margin-bottom: 6px; font-weight: 600; }
+  .field input { width: 100%; background: rgba(242,238,227,0.04); border: 1px solid var(--panel-line); border-radius: 8px; padding: 12px 14px; color: var(--cream-bright); font: 500 14px "Inter", sans-serif; }
+  .field input:focus { outline: none; border-color: var(--blue); background: rgba(78,196,255,0.05); }
+  .err { color: var(--danger); font-size: 12px; margin-top: 12px; min-height: 16px; }
+
+  .toast { position: fixed; bottom: 20px; right: 20px; background: var(--bg-2); border: 1px solid var(--blue); padding: 10px 16px; border-radius: 10px; font-size: 13px; opacity: 0; transform: translateY(10px); transition: opacity 0.2s, transform 0.2s; z-index: 100; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 640px) {
+    h1 { font-size: 26px; }
+    th, td { padding: 10px 12px; font-size: 12px; }
+    .kpi .val { font-size: 24px; }
+    .col-phone { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="gate" id="gate">
+  <div class="gate-box">
+    <h2>Subject Medias</h2>
+    <div class="sub">Admin &middot; Live sales</div>
+    <form onsubmit="handleLogin(event)">
+      <div class="field" style="margin-bottom: 16px;">
+        <label>Admin password</label>
+        <input type="password" id="pw" required autofocus autocomplete="current-password" />
+      </div>
+      <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">Unlock</button>
+      <div id="loginErr" class="err"></div>
+    </form>
+  </div>
+</div>
+
+<div class="wrap" id="app" style="display: none;">
+  <header>
+    <div>
+      <h1>Live Sales</h1>
+      <div class="sub" id="lastUpdated">&mdash;</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <span id="status" class="pill warn">Loading&hellip;</span>
+      <button class="btn btn-danger" onclick="signOut()">Lock</button>
+    </div>
+  </header>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="controls">
+    <select id="hoursSel" onchange="loadSales()">
+      <option value="24" selected>Last 24 hours</option>
+      <option value="8">Last 8 hours</option>
+      <option value="4">Last 4 hours</option>
+      <option value="72">Last 3 days</option>
+      <option value="168">Last 7 days</option>
+      <option value="720">Last 30 days</option>
+    </select>
+    <button class="btn" onclick="loadSales()">Refresh now</button>
+    <button class="btn btn-primary" onclick="exportCSV()">Export CSV</button>
+    <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--fog);margin-left:auto;">
+      <input type="checkbox" id="autoRefresh" checked /> Auto-refresh every 30s
+    </label>
+  </div>
+
+  <div class="card">
+    <div id="salesTable"><div class="empty"><div class="big">Loading&hellip;</div><div>Fetching live sales from Stripe.</div></div></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const state = { sales: [], hours: 24, timer: null };
+  const $ = (id) => document.getElementById(id);
+
+  function toast(msg, kind) {
+    const el = $("toast");
+    el.textContent = msg;
+    el.style.borderColor = kind === "err" ? "var(--danger)" : "var(--blue)";
+    el.classList.add("show");
+    setTimeout(() => el.classList.remove("show"), 2400);
+  }
+
+  function setStatus(kind, label) {
+    const el = $("status");
+    el.className = "pill " + kind;
+    el.textContent = label;
+  }
+
+  function getPw() { return sessionStorage.getItem("sm_pw") || ""; }
+  function setPw(v) { sessionStorage.setItem("sm_pw", v); }
+  function clearPw() { sessionStorage.removeItem("sm_pw"); }
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    const pw = $("pw").value;
+    const err = $("loginErr");
+    err.textContent = "";
+    setPw(pw);
+    try {
+      const res = await fetch("/api/sales?hours=1", { headers: { "x-admin-password": pw } });
+      if (res.status === 401) { err.textContent = "Wrong password."; clearPw(); return; }
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        err.textContent = j.error || ("Server error " + res.status);
+        return;
+      }
+      showApp();
+      loadSales();
+    } catch (e2) {
+      err.textContent = "Network error — is the site deployed?";
+    }
+  }
+
+  function showApp() {
+    $("gate").style.display = "none";
+    $("app").style.display = "block";
+  }
+
+  function signOut() {
+    clearPw();
+    if (state.timer) clearInterval(state.timer);
+    $("gate").style.display = "flex";
+    $("app").style.display = "none";
+    $("pw").value = "";
+  }
+
+  function fmtMoney(cents) {
+    const n = (cents || 0) / 100;
+    return "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function fmtTime(unix) {
+    const d = new Date(unix * 1000);
+    return d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+  }
+
+  function renderKpis() {
+    const total = state.sales.reduce((s, x) => s + (x.amount || 0), 0);
+    const count = state.sales.length;
+    const emails = new Set(state.sales.map((x) => x.email).filter(Boolean)).size;
+    const productCounts = {};
+    for (const s of state.sales) {
+      const key = s.product || "—";
+      productCounts[key] = (productCounts[key] || 0) + 1;
+    }
+    const topEntries = Object.entries(productCounts).sort((a, b) => b[1] - a[1]).slice(0, 2);
+    const topStr = topEntries.length ? topEntries.map(([k, v]) => k + " ×" + v).join(" · ") : "—";
+
+    $("kpis").innerHTML =
+      '<div class="kpi"><div class="lbl">Sales</div><div class="val">' + count + '</div></div>' +
+      '<div class="kpi"><div class="lbl">Revenue</div><div class="val">' + fmtMoney(total) + '</div></div>' +
+      '<div class="kpi"><div class="lbl">Unique buyers</div><div class="val">' + emails + '</div></div>' +
+      '<div class="kpi"><div class="lbl">Top product</div><div class="val" style="font-size:18px;line-height:1.2;">' + escapeHtml(topStr) + '</div></div>';
+  }
+
+  function renderTable() {
+    if (state.sales.length === 0) {
+      $("salesTable").innerHTML = '<div class="empty"><div class="big">No sales yet</div><div>New purchases will appear here automatically.</div></div>';
+      return;
+    }
+    const rows = state.sales.map(function (s) {
+      return (
+        '<tr>' +
+          '<td class="muted">' + escapeHtml(fmtTime(s.date)) + '</td>' +
+          '<td>' +
+            '<div style="color:var(--cream-bright);font-weight:600;">' + escapeHtml(s.name || "—") + '</div>' +
+            '<div class="muted">' + escapeHtml(s.email || "—") + '</div>' +
+          '</td>' +
+          '<td class="col-phone muted">' + escapeHtml(s.phone || "—") + '</td>' +
+          '<td>' + escapeHtml(s.product || "—") + '</td>' +
+          '<td class="amount" style="text-align:right;">' + fmtMoney(s.amount) + '</td>' +
+        '</tr>'
+      );
+    }).join("");
+    $("salesTable").innerHTML =
+      '<table>' +
+        '<thead><tr>' +
+          '<th>When</th><th>Buyer</th><th class="col-phone">Phone</th><th>Product</th>' +
+          '<th style="text-align:right;">Amount</th>' +
+        '</tr></thead>' +
+        '<tbody>' + rows + '</tbody>' +
+      '</table>';
+  }
+
+  async function loadSales() {
+    const hours = parseInt($("hoursSel").value, 10) || 24;
+    state.hours = hours;
+    setStatus("warn", "Refreshing…");
+    try {
+      const res = await fetch("/api/sales?hours=" + hours, { headers: { "x-admin-password": getPw() } });
+      if (res.status === 401) { setStatus("err", "Unauthorized"); signOut(); return; }
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        setStatus("err", j.error || ("Error " + res.status));
+        return;
+      }
+      const data = await res.json();
+      state.sales = data.sales || [];
+      renderKpis();
+      renderTable();
+      $("lastUpdated").textContent = "Updated " + new Date().toLocaleTimeString();
+      setStatus("ok", "Live");
+    } catch (e) {
+      setStatus("err", "Network error");
+    }
+  }
+
+  function exportCSV() {
+    if (state.sales.length === 0) { toast("No sales to export", "err"); return; }
+    const cols = ["date_local", "email", "name", "phone", "product", "amount_usd", "currency", "session_id"];
+    const rows = state.sales.map(function (s) {
+      return {
+        date_local: new Date(s.date * 1000).toLocaleString("en-US"),
+        email: s.email || "",
+        name: s.name || "",
+        phone: s.phone || "",
+        product: s.product || "",
+        amount_usd: ((s.amount || 0) / 100).toFixed(2),
+        currency: s.currency || "USD",
+        session_id: s.id
+      };
+    });
+    const esc = function (v) {
+      const str = String(v == null ? "" : v);
+      return /[",\n\r]/.test(str) ? '"' + str.replace(/"/g, '""') + '"' : str;
+    };
+    const csv = [cols.join(",")].concat(rows.map(function (r) { return cols.map(function (c) { return esc(r[c]); }).join(","); })).join("\r\n");
+    const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "subjectmedias-sales-" + new Date().toISOString().slice(0, 10) + ".csv";
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast("CSV exported");
+  }
+
+  function escapeHtml(s) {
+    return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  function startAutoRefresh() {
+    if (state.timer) clearInterval(state.timer);
+    state.timer = setInterval(function () {
+      if ($("autoRefresh").checked && document.visibilityState === "visible") loadSales();
+    }, 30000);
+  }
+
+  (function init() {
+    if (getPw()) {
+      fetch("/api/sales?hours=1", { headers: { "x-admin-password": getPw() } }).then(function (r) {
+        if (r.ok) { showApp(); loadSales(); startAutoRefresh(); }
+        else { clearPw(); }
+      }).catch(function () {});
+    }
+    startAutoRefresh();
+  })();
+</script>
+
+</body>
+</html>
