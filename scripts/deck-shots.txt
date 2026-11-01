@@ -1,0 +1,37 @@
+# The phone screens' video, cut from source footage by scripts/deck_media.py.
+# One row per shot; rows with the same name join in order into
+# media/v2/deck/<name>.mp4 (720x1280, no sound) with a poster <name>.jpg.
+#
+# center: where the tall 9:16 crop sits across the source frame (0 = left
+# edge, 0.5 = middle, 1 = right edge). speed: 1 is real time, 0.6 is slow.
+# Minors: wide, helmeted or details only, unless a parent signed a release.
+#
+# Stand-in footage from the current site (media/*.mp4). Swap these rows for
+# the new footage when it comes in; the page needs no other change.
+#
+# name     source              start  dur   center  speed
+open       hero-bg-new.mp4     2.3    1.0   0.45    1
+open       action-reel-2.mp4   0.2    0.9   0.55    1
+open       highlight-reel.mp4  4.35   0.9   0.52    1
+open       action-reel-2.mp4   18.2   1.0   0.60    1
+open       highlight-reel.mp4  7.0    0.8   0.47    1
+open       action-reel-2.mp4   26.4   0.8   0.50    1
+open       action-reel-3.mp4   5.4    0.6   0.50    1
+open       action-reel-2.mp4   2.0    0.8   0.68    0.65
+open       pylon-rated.mp4     3.0    0.6   0.30    1
+open       action-reel-2.mp4   25.0   0.8   0.74    1
+open       highlight-reel.mp4  9.0    1.0   0.43    1
+open       action-reel-2.mp4   30.0   0.9   0.50    1
+open       hero-bg-new.mp4     5.0    0.9   0.38    1
+open       action-reel-2.mp4   4.0    0.8   0.62    1
+open       action-reel-2.mp4   33.0   1.5   0.55    1
+catch      action-reel-2.mp4   18.2   1.8   0.60    1
+catch      action-reel-2.mp4   30.0   1.4   0.50    1
+catch      action-reel-2.mp4   26.4   1.0   0.50    1
+wide       hero-bg-new.mp4     2.3    3.0   0.45    1
+drills     action-reel-2.mp4   24.8   2.8   0.62    1
+drills     action-reel-2.mp4   33.0   1.6   0.55    1
+team       highlight-reel.mp4  9.0    1.3   0.43    1
+team       action-reel-3.mp4   5.4    0.6   0.50    1
+team       highlight-reel.mp4  4.35   1.5   0.52    1
+dusk       action-reel-2.mp4   1.8    1.5   0.68    0.6

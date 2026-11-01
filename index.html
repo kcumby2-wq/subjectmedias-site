@@ -24,6 +24,7 @@
 {"@context":"https://schema.org","@type":"Organization","name":"Subject Medias","url":"https://www.subjectmedias.com","logo":"https://www.subjectmedias.com/media/v2/mark.svg","email":"hello@subjectmedias.com","sameAs":["https://www.instagram.com/subjectmedias/"],"makesOffer":[{"@type":"Offer","name":"Photo coverage","price":"49.99","priceCurrency":"USD"},{"@type":"Offer","name":"Video coverage","price":"99.99","priceCurrency":"USD"},{"@type":"Offer","name":"Elite coverage","price":"139.99","priceCurrency":"USD"}]}
 </script>
 <script defer src="/js/site.js"></script>
+<script defer src="/js/deck.js"></script>
 </head>
 <body>
 <a class="skip" href="#book">Skip to booking</a>
@@ -41,6 +42,140 @@
   </nav>
   <a class="pill pill-green head-cta" href="#book">Book coverage</a>
 </header>
+
+<!-- Phones: the page as nine screens you swipe left through, each over its own
+     footage, like a story (js/deck.js; css/site.css, "The phone deck").
+     Computers, tablets and phones without JavaScript get the scrolling page. -->
+<div class="deck" data-deck role="region" aria-roledescription="carousel" aria-label="Subject Medias, in nine screens">
+  <div class="deck-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="deck-track" data-deck-track>
+
+    <section class="dk dk-open" aria-roledescription="slide" aria-label="1 of 9">
+      <video class="dk-media" data-src="/media/v2/deck/open.mp4" poster="/media/v2/deck/open.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
+      <div class="dk-shade"></div>
+      <div class="dk-osd" aria-hidden="true">
+        <div class="osd-row"><span class="osd-rec"><i></i>REC</span><span class="osd-tc" data-dk-tc>00:12:04:17</span><span class="osd-gap"></span><span>1080p60</span></div>
+        <span class="osd-c tl"></span><span class="osd-c tr"></span><span class="osd-c bl"></span><span class="osd-c br"></span>
+        <span class="osd-af" data-dk-af></span>
+      </div>
+      <div class="dk-copy">
+        <p class="dk-kicker">Game-day photo and video</p>
+        <h1 class="dk-title">Every play, on film.</h1>
+        <p class="dk-line">Edited and delivered within 48 hours. <b>From $49.</b></p>
+        <div class="dk-btns"><a class="pill pill-green" href="#book" data-open-book>Book coverage</a></div>
+        <p class="dk-hint" data-deck-hint>Swipe to see how it works</p>
+      </div>
+    </section>
+
+    <section class="dk dk-text" aria-roledescription="slide" aria-label="2 of 9">
+      <video class="dk-media" data-src="/media/v2/deck/catch.mp4" poster="/media/v2/deck/catch.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
+      <div class="dk-shade"></div>
+      <div class="dk-copy">
+        <h2 class="dk-title">Highlights to send coaches.</h2>
+        <p class="dk-line">Their plays, cut and color-graded, plus clips sized for Instagram.</p>
+      </div>
+    </section>
+
+    <section class="dk dk-text" aria-roledescription="slide" aria-label="3 of 9">
+      <div class="dk-flash" data-flash aria-hidden="true">
+        <img class="show" data-src="/media/v2/work-lacrosse.webp" alt="">
+        <img data-src="/media/v2/work-catch.webp" alt="">
+        <img data-src="/media/v2/work-volleyball.webp" alt="">
+        <img data-src="/media/v2/work-7v7-wide.webp" alt="">
+        <img data-src="/media/v2/work-training.webp" alt="">
+        <span class="dk-pop"></span>
+      </div>
+      <div class="dk-shade"></div>
+      <div class="dk-copy">
+        <h2 class="dk-title">Photos worth framing.</h2>
+        <p class="dk-line">15 or more edited photos from the game, labeled so you can find your athlete fast.</p>
+      </div>
+    </section>
+
+    <section class="dk dk-text" aria-roledescription="slide" aria-label="4 of 9">
+      <video class="dk-media" data-src="/media/v2/deck/wide.mp4" poster="/media/v2/deck/wide.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
+      <div class="dk-shade"></div>
+      <div class="dk-copy">
+        <h2 class="dk-title">The stands miss the play.</h2>
+        <p class="dk-line">You can watch the game or film it. From the bleachers you usually end up with neither.</p>
+      </div>
+    </section>
+
+    <section class="dk dk-text" aria-roledescription="slide" aria-label="5 of 9">
+      <img class="dk-media dk-kb" data-src="/media/v2/crew-ky.webp" alt="">
+      <div class="dk-shade"></div>
+      <div class="dk-copy">
+        <h2 class="dk-title">Nothing to set up.</h2>
+        <p class="dk-line">Screened creators find your athlete by team and jersey number. You just watch the game.</p>
+      </div>
+    </section>
+
+    <section class="dk dk-text dk-price" aria-roledescription="slide" aria-label="6 of 9">
+      <video class="dk-media" data-src="/media/v2/deck/drills.mp4" poster="/media/v2/deck/drills.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
+      <div class="dk-shade"></div>
+      <div class="dk-copy">
+        <h2 class="dk-title">Pick your coverage.</h2>
+        <ul class="dk-prices">
+          <li><button type="button" data-open-book data-package="photo" aria-label="Book photo coverage, $49.99"><span class="dk-p-name">Photo</span><span class="dk-p-what">15+ edited photos</span><span class="dk-p-price">$49<small>.99</small></span></button></li>
+          <li><button type="button" data-open-book data-package="video" aria-label="Book video coverage, $99.99"><span class="dk-p-name">Video</span><span class="dk-p-what">A highlight video and clips</span><span class="dk-p-price">$99<small>.99</small></span></button></li>
+          <li class="top"><button type="button" data-open-book data-package="elite" aria-label="Book elite coverage, $139.99, the most booked"><span class="dk-p-name">Elite <em>Most booked</em></span><span class="dk-p-what">Photo and video of the full event</span><span class="dk-p-price">$139<small>.99</small></span></button></li>
+        </ul>
+        <p class="dk-small">Delivered within 48 hours. Add a player transcript for $249.99.</p>
+      </div>
+    </section>
+
+    <section class="dk dk-text" aria-roledescription="slide" aria-label="7 of 9">
+      <video class="dk-media" data-src="/media/v2/deck/team.mp4" poster="/media/v2/deck/team.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
+      <div class="dk-shade"></div>
+      <div class="dk-copy">
+        <h2 class="dk-title">Teams and events.</h2>
+        <p class="dk-line">A crew sized to your roster or tournament, with a recap and mic'd-up audio. Events from $999.</p>
+        <div class="dk-btns"><a class="pill pill-green" href="#book" data-open-book data-kind="team">Plan a team</a><a class="pill pill-line" href="#book" data-open-book data-kind="event">Plan an event</a></div>
+      </div>
+    </section>
+
+    <section class="dk dk-text" aria-roledescription="slide" aria-label="8 of 9">
+      <video class="dk-media" data-src="/media/v2/deck/dusk.mp4" poster="/media/v2/deck/dusk.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
+      <div class="dk-shade"></div>
+      <div class="dk-copy">
+        <h2 class="dk-title">Tell us about the game.</h2>
+        <p class="dk-line">Two minutes, no payment. We reply within 24 hours to lock your creator.</p>
+        <div class="dk-btns"><a class="pill pill-green dk-big" href="#book" data-open-book>Book coverage</a></div>
+        <p class="dk-small">Rather talk first? <a href="mailto:hello@subjectmedias.com">hello@subjectmedias.com</a> or <a href="https://www.instagram.com/subjectmedias/" target="_blank" rel="noopener">@subjectmedias</a></p>
+      </div>
+    </section>
+
+    <section class="dk dk-text" aria-roledescription="slide" aria-label="9 of 9">
+      <div class="dk-flash slow" data-flash aria-hidden="true">
+        <img class="show" data-src="/media/v2/crew-lathem.webp" alt="">
+        <img data-src="/media/v2/crew-kt.webp" alt="">
+        <img data-src="/media/v2/crew-chris.webp" alt="">
+        <img data-src="/media/v2/crew-maddy.webp" alt="">
+      </div>
+      <div class="dk-shade"></div>
+      <div class="dk-copy">
+        <h2 class="dk-title">Shoot with us.</h2>
+        <p class="dk-line">Creators build real portfolios on our crews: screened, trained and mentored on the sideline.</p>
+        <div class="dk-btns"><a class="pill pill-green" href="mailto:hello@subjectmedias.com?subject=Creator%20application">Send your work</a><a class="pill pill-line" href="https://form.jotform.com/261491874249064" target="_blank" rel="noopener">Start your page</a></div>
+        <p class="dk-foot"><a href="https://www.instagram.com/subjectmedias/" target="_blank" rel="noopener">Instagram</a> <a href="https://www.youtube.com/@subjectmedias" target="_blank" rel="noopener">YouTube</a> <a href="https://www.linkedin.com/company/subjectmedias" target="_blank" rel="noopener">LinkedIn</a> <span>&copy; 2026 Subject Medias</span></p>
+      </div>
+    </section>
+
+  </div>
+  <button type="button" class="dk-step dk-prev" data-deck-prev>Previous screen</button>
+  <button type="button" class="dk-step dk-next" data-deck-next>Next screen</button>
+  <p class="visually-hidden" role="status" data-deck-status></p>
+</div>
+
+<!-- The booking form on phones: it opens over the screens, and js/deck.js
+     moves the form in here (it lives in #book on wider screens). -->
+<div class="sheet" data-sheet role="dialog" aria-modal="true" aria-labelledby="sheet-title" hidden>
+  <div class="sheet-head">
+    <div><h2 id="sheet-title" tabindex="-1">Book coverage</h2><p>Two minutes, no payment.</p></div>
+    <button type="button" class="sheet-x" data-sheet-close aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
+  </div>
+  <div class="sheet-body" data-sheet-body></div>
+</div>
 
 <main>
 

@@ -359,6 +359,145 @@ fieldset.f { border: 0; margin: 0; padding: 0; }
 .foot-row a { color: var(--chalk); font-weight: 600; overflow-wrap: anywhere; }
 @media (max-width: 760px) { .eco { grid-template-columns: 1fr; } }
 
+/* ── The phone deck ───────────────────────────────────────────────────
+   On phones js/deck.js puts .deck-on on <html>: the page becomes nine
+   full-screen screens you swipe left through, each over its own footage,
+   and the booking form opens over them as a sheet. Off by default, so a
+   phone without JavaScript still gets the scrolling page. */
+.deck, .sheet { display: none; }
+html.deck-on, html.deck-on body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+html.deck-on main, html.deck-on .foot, html.deck-on .skip { display: none; }
+html.deck-on .head { padding-top: calc(24px + env(safe-area-inset-top, 0px)); background: none; border-color: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; }
+html.deck-on .head-cta { min-height: 40px; padding: 0.6em 1.1em; }
+html.deck-on .deck { display: block; position: fixed; inset: 0; z-index: 40; background: var(--black); }
+/* A little film grain over the footage. */
+.deck::after {
+  content: ""; position: absolute; inset: 0; z-index: 4; pointer-events: none; opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.deck-bars {
+  position: absolute; z-index: 5; top: calc(env(safe-area-inset-top, 0px) + 10px);
+  left: max(14px, env(safe-area-inset-left, 0px)); right: max(14px, env(safe-area-inset-right, 0px));
+  display: flex; gap: 4px; pointer-events: none;
+}
+.deck-bars i { flex: 1; height: 3px; border-radius: 3px; background: rgba(241, 244, 238, 0.28); transition: background-color 0.25s; }
+.deck-bars i.seen { background: rgba(241, 244, 238, 0.85); }
+.deck-bars i.now { background: var(--green); }
+.deck-track {
+  display: flex; height: 100%; overflow-x: auto; overflow-y: hidden;
+  scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.deck-track::-webkit-scrollbar { display: none; }
+/* The first screen leans left twice, so people see there's more to the right. */
+.deck.nudge .deck-track { animation: nudge 0.9s cubic-bezier(0.3, 0, 0.2, 1) 2; }
+@keyframes nudge { 0%, 100% { transform: none; } 40% { transform: translateX(-36px); } }
+
+.dk { position: relative; flex: 0 0 100%; width: 100%; height: 100%; overflow: hidden; scroll-snap-align: start; scroll-snap-stop: always; background: var(--black); }
+.dk-media, .dk-flash img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.dk-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.06) 22%, rgba(0, 0, 0, 0.34) 46%, rgba(0, 0, 0, 0.93) 100%); }
+/* Text screens: the footage stays visible, about a third as bright. */
+.dk-text .dk-shade { background: linear-gradient(180deg, rgba(0, 0, 0, 0.68) 0%, rgba(0, 0, 0, 0.46) 30%, rgba(0, 0, 0, 0.6) 58%, rgba(0, 0, 0, 0.94) 100%); }
+.dk-copy {
+  position: absolute; z-index: 2; left: 0; right: 0; bottom: 0;
+  display: grid; justify-items: start; gap: 14px;
+  padding: 0 max(22px, env(safe-area-inset-right, 0px)) calc(36px + env(safe-area-inset-bottom, 0px)) max(22px, env(safe-area-inset-left, 0px));
+}
+.dk-kicker { margin: 0; color: var(--green); font-weight: 700; font-size: 0.98rem; }
+.dk-kicker, .dk-line, .dk-small, .dk-hint { text-shadow: 0 1px 14px rgba(0, 0, 0, 0.55); }
+/* The opener's copy sits clear of the viewfinder's corner marks. */
+.dk-open .dk-copy { padding-bottom: calc(58px + env(safe-area-inset-bottom, 0px)); }
+.dk-title {
+  margin: 0; max-width: 13ch;
+  font-weight: 900; font-stretch: 100%; font-size: clamp(2.5rem, 12.6vw, 3.5rem); line-height: 0.88; letter-spacing: -0.014em;
+  text-transform: uppercase; text-wrap: balance;
+}
+.dk-line { margin: 0; max-width: 34ch; font-size: 1.05rem; line-height: 1.45; color: rgba(241, 244, 238, 0.9); }
+.dk-line b { color: var(--chalk); font-weight: 800; }
+.dk-btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 2px; }
+.dk-big { min-height: 56px; padding: 0.9em 1.7em; font-size: 1.08rem; }
+.dk-small { margin: 0; max-width: 36ch; font-size: 0.9rem; line-height: 1.45; color: var(--chalk-2); }
+.dk-small a, .dk-foot a { color: var(--chalk); font-weight: 700; }
+.dk-foot { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 6px 0 0; font-size: 0.88rem; color: var(--smoke); }
+.dk-hint { display: inline-flex; align-items: center; gap: 10px; margin: 4px 0 0; font-weight: 700; font-size: 0.92rem; color: var(--chalk-2); transition: opacity 0.4s; }
+.dk-hint::after { content: ""; width: 9px; height: 9px; border: solid currentColor; border-width: 2px 2px 0 0; transform: rotate(45deg); animation: hint 1.4s ease-in-out infinite; }
+@keyframes hint { 50% { transform: translateX(5px) rotate(45deg); } }
+.deck.moved .dk-hint { opacity: 0; }
+
+/* The opener: the game through the creator's viewfinder, as on the computer. */
+.dk-osd {
+  position: absolute; z-index: 1;
+  inset: calc(env(safe-area-inset-top, 0px) + 86px) max(14px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 14px) max(14px, env(safe-area-inset-left, 0px));
+  font: 500 0.74rem/1 var(--mono); letter-spacing: 0.06em; color: rgba(241, 244, 238, 0.92);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55); pointer-events: none;
+}
+.dk-osd .osd-af { left: 56%; top: 16%; }
+
+/* Photos: one after another, with a camera flash; crew photos crossfade slowly. */
+.dk-flash img { opacity: 0; transition: opacity 0.2s; }
+.dk-flash img.show { opacity: 1; }
+.dk-flash.slow img { transition-duration: 1s; }
+.dk-pop { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+.dk-pop.go { animation: pop 0.32s ease-out; }
+@keyframes pop { from { opacity: 0.5; } to { opacity: 0; } }
+.dk.is-on .dk-kb, .dk.is-on .dk-flash.slow img.show { animation: kb 9s ease-out forwards; }
+@keyframes kb { from { transform: scale(1); } to { transform: scale(1.08); } }
+
+/* All three prices on one screen; each opens the form set to that package. */
+.dk-prices { list-style: none; margin: 2px 0 0; padding: 0; display: grid; gap: 10px; width: 100%; }
+.dk-prices button {
+  width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 2px 14px;
+  padding: 13px 16px; border: 1.5px solid rgba(241, 244, 238, 0.26); border-radius: 18px;
+  background: rgba(5, 6, 5, 0.66); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  color: var(--chalk); text-align: left; cursor: pointer; transition: border-color 0.2s, transform 0.15s;
+}
+.dk-prices button:active { transform: scale(0.98); }
+.dk-prices .top button { border-color: var(--green); }
+.dk-p-name { font-weight: 800; font-size: 1.12rem; line-height: 1.2; }
+.dk-p-name em { margin-left: 6px; padding: 3px 8px; border-radius: 999px; background: var(--green); color: var(--black); font-style: normal; font-weight: 800; font-size: 0.7rem; vertical-align: 2px; }
+.dk-p-what { grid-column: 1; font-size: 0.9rem; line-height: 1.3; color: var(--chalk-2); }
+.dk-p-price { grid-row: 1 / span 2; grid-column: 2; font-weight: 900; font-stretch: 112%; font-size: 1.85rem; line-height: 1; }
+.dk-p-price small { font-size: 0.5em; vertical-align: 0.7em; margin-left: 1px; }
+
+/* Previous and next, for keyboards and screen readers; out of sight until focused. */
+.dk-step { position: absolute; z-index: 6; bottom: calc(env(safe-area-inset-bottom, 0px) + 10px); border: 0; }
+.dk-step:not(:focus-visible) { width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.dk-step:focus-visible { padding: 10px 16px; border-radius: 999px; background: var(--green); color: var(--black); font-weight: 800; }
+.dk-prev { left: 14px; }
+.dk-next { right: 14px; }
+
+/* The booking sheet. */
+html.deck-on .sheet { display: flex; }
+.sheet {
+  position: fixed; inset: 0; z-index: 60; flex-direction: column; background: var(--ground);
+  transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.sheet.open { transform: none; }
+.sheet-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: calc(14px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 12px max(16px, env(safe-area-inset-left, 0px));
+  border-bottom: 1px solid var(--line);
+}
+.sheet-head h2 { margin: 0; font-weight: 900; font-stretch: 106%; font-size: 1.45rem; line-height: 1; text-transform: uppercase; outline: none; }
+.sheet-head p { margin: 5px 0 0; color: var(--smoke); font-size: 0.9rem; }
+.sheet-x { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border: 1.5px solid var(--line-2); border-radius: 50%; background: none; color: var(--chalk); cursor: pointer; }
+.sheet-x svg { width: 20px; height: 20px; fill: none; }
+.sheet-body {
+  flex: 1; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+  padding: 16px max(16px, env(safe-area-inset-right, 0px)) calc(28px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+}
+.sheet .form, .sheet .done { padding: 0; border-radius: 0; background: none; }
+
+/* Short phones: tighter, so every screen still fits. */
+@media (max-height: 700px) {
+  .dk-title { font-size: clamp(2.1rem, 10.6vw, 2.9rem); }
+  .dk-copy { gap: 10px; padding-bottom: calc(22px + env(safe-area-inset-bottom, 0px)); }
+  .dk-open .dk-copy { padding-bottom: calc(46px + env(safe-area-inset-bottom, 0px)); }
+  .dk-line { font-size: 0.98rem; }
+  .dk-prices { gap: 8px; }
+  .dk-prices button { padding: 9px 14px; }
+  .dk-p-price { font-size: 1.55rem; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
