@@ -4,7 +4,8 @@
 #
 # center: where the tall 9:16 crop sits across the source frame (0 = left
 # edge, 0.5 = middle, 1 = right edge). speed: 1 is real time, 0.6 is slow.
-# Minors: wide, helmeted or details only, unless a parent signed a release.
+# Athletes and anyone under 18: wide, helmeted, from behind or details only,
+# never a close-up face. Adults (coaches, adult creators) can be close.
 #
 # Stand-in footage from the current site (media/*.mp4). Swap these rows for
 # the new footage when it comes in; the page needs no other change.
