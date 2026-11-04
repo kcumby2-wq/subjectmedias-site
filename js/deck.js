@@ -1,4 +1,4 @@
-// Phones: the homepage as nine full-screen screens you swipe left through,
+// Phones: the homepage as ten full-screen screens you swipe left through,
 // each over its own footage, like a story (the markup is the .deck in
 // index.html; the look is "The phone deck" in css/site.css). Computers,
 // tablets and phones without JavaScript keep the scrolling page.

@@ -1,5 +1,5 @@
-// The site's two functions that feed the TOJ app: the booking form's
-// /api/book and the Stripe webhook. No network: fetch and Stripe's API are
+// The site's functions that feed the TOJ app: the booking form's /api/book,
+// the fellowship application's /api/apply and the Stripe webhook. No network: fetch and Stripe's API are
 // stubbed; Stripe's real signing code checks the signatures.
 //
 //   npm test
@@ -10,6 +10,7 @@ const { Readable } = require("stream");
 const Stripe = require("stripe");
 
 const book = require("../api/book");
+const apply = require("../api/apply");
 const hook = require("../api/stripe-webhook");
 const W = hook._test;
 
@@ -99,6 +100,58 @@ test("book: POST with a JSON object only", async () => {
 });
 
 // ── The webhook's reading of a checkout ──────────────────────────────────
+// ── /api/apply ───────────────────────────────────────────────────────────
+test("apply: passes the application on with the secret and Vercel's visitor address", async () => {
+  answer = async () => ({ ok: true, status: 200, json: async () => ({ ok: true, id: "8f14e45f-ceea-467e-a1d0-6f1d4c6b2a01" }) });
+  const res = fakeRes();
+  await apply({ method: "POST", headers: { "x-real-ip": "203.0.113.7" }, body: { name: "Jordan", links: ["instagram.com/jordan"] } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.deepEqual(res.body, { ok: true }, "nothing else comes back, not even an id");
+  assert.equal(sent.length, 1);
+  assert.match(sent[0].url, /\/api\/sm\/fellowship$/);
+  assert.equal(sent[0].init.headers["X-SM-Secret"], SECRET);
+  assert.equal(sent[0].init.headers["X-SM-Visitor"], "203.0.113.7");
+  assert.deepEqual(sent[0].body.links, ["instagram.com/jordan"]);
+});
+
+test("apply: the fields to fix come back, and nothing else", async () => {
+  answer = async () => ({ ok: false, status: 400, json: async () => ({ error: "invalid", fields: ["guardian_email", 7, "link2"], debug: "secret stuff" }) });
+  const res = fakeRes();
+  await apply({ method: "POST", headers: {}, body: {} }, res);
+  assert.equal(res.statusCode, 400);
+  assert.deepEqual(res.body, { error: "invalid", fields: ["guardian_email", "link2"] });
+});
+
+test("apply: too many, the app down, or no secret: the form is told to show the email", async () => {
+  answer = async () => ({ ok: false, status: 429, json: async () => ({}) });
+  let res = fakeRes();
+  await apply({ method: "POST", headers: {}, body: {} }, res);
+  assert.equal(res.statusCode, 429);
+  answer = async () => { throw new Error("connect ECONNREFUSED"); };
+  res = fakeRes();
+  await apply({ method: "POST", headers: {}, body: {} }, res);
+  assert.equal(res.statusCode, 503);
+  answer = async () => ({ ok: false, status: 503, json: async () => ({ error: "storage_unavailable" }) });
+  res = fakeRes();
+  await apply({ method: "POST", headers: {}, body: {} }, res);
+  assert.equal(res.statusCode, 503);
+  delete process.env.SM_BOOKINGS_SECRET;
+  res = fakeRes();
+  await apply({ method: "POST", headers: {}, body: {} }, res);
+  assert.equal(res.statusCode, 503);
+  assert.equal(sent.length, 3, "nothing goes out without the secret");
+});
+
+test("apply: POST with a JSON object only", async () => {
+  let res = fakeRes();
+  await apply({ method: "GET", headers: {} }, res);
+  assert.equal(res.statusCode, 405);
+  res = fakeRes();
+  await apply({ method: "POST", headers: {}, body: [1, 2] }, res);
+  assert.equal(res.statusCode, 400);
+  assert.equal(sent.length, 0);
+});
+
 test("a field about the athlete themselves stays in Stripe", () => {
   for (const l of ["Athlete name", "Athlete's name & jersey", "Player name and number", "Name", "Your child's age", "Athlete Instagram", "Grad year", "Class of", "Athlete email", "Date of birth"]) assert.equal(W.personal(l), true, l);
   for (const l of ["Team name", "Team & jersey #", "Player #", "Athlete's team", "Event & date", "Event name", "Sport", "City, state", "Notes for the creator"]) assert.equal(W.personal(l), false, l);

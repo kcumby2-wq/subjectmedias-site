@@ -6,9 +6,16 @@
     },
     "api/stripe-webhook.js": {
       "maxDuration": 30
+    },
+    "api/apply.js": {
+      "maxDuration": 30
     }
   },
   "rewrites": [
+    {
+      "source": "/fellowship",
+      "destination": "/fellowship.html"
+    },
     {
       "source": "/c/:slug",
       "destination": "https://toj-csv-app.onrender.com/c/:slug"

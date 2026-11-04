@@ -1,0 +1,111 @@
+/* The fellowship page (fellowship.html), on top of css/site.css.
+   The same dark look as the homepage: a hero that names the three steps while
+   a viewfinder shows a creator at each one, then the engine, the ladder, the
+   seats, mentorship on the chalk band, the rules, the plans and the green
+   application band. */
+
+/* ── The hero ─────────────────────────────────────────────────────── */
+.fhero { position: relative; background: var(--black); overflow: hidden; padding-block: calc(var(--head-h) + 48px + env(safe-area-inset-top, 0px)) clamp(56px, 8vw, 104px); }
+.fhero-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap: clamp(32px, 5vw, 80px); align-items: center; }
+.fhero-copy { min-width: 0; }
+.fhero-title {
+  margin: 0; display: grid;
+  font-weight: 900; font-stretch: 115%; font-size: clamp(3.2rem, 6.4vw, 7.4rem); line-height: 0.88; letter-spacing: -0.014em;
+  text-transform: uppercase;
+}
+.fh-step { position: relative; display: block; width: max-content; max-width: calc(100% - 0.7em); transition: color 0.45s; }
+/* With the cycle running, the step in the viewfinder is bright and marked by
+   the play mark's triangle; the others wait in grey. Without it, all three
+   read at full strength. */
+.js .fhero.cycling .fh-step { color: #3c453d; }
+.js .fhero.cycling .fh-step.on { color: var(--chalk); }
+.fh-step::after {
+  content: ""; position: absolute; top: 50%; right: -0.62em; width: 0.32em; height: 0.4em; margin-top: -0.22em;
+  background: var(--green); clip-path: polygon(0 0, 100% 50%, 0 100%); opacity: 0; transition: opacity 0.3s;
+}
+.js .fhero.cycling .fh-step.on::after { opacity: 1; }
+
+.vfbox { position: relative; margin: 0; aspect-ratio: 4 / 5; max-width: 100%; border-radius: 22px; overflow: hidden; background: var(--panel); box-shadow: 0 0 0 1px var(--line); }
+.vf-shot { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.7s; }
+.vf-shot.on { opacity: 1; }
+.vfbox::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0, 0, 0, 0.45) 0%, transparent 22%, transparent 70%, rgba(0, 0, 0, 0.6) 100%); pointer-events: none; }
+.vf-osd { position: absolute; z-index: 1; inset: 14px; font: 500 0.74rem/1 var(--mono); letter-spacing: 0.06em; color: rgba(241, 244, 238, 0.92); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6); pointer-events: none; }
+.vf-osd .osd-row { top: 14px; left: 16px; right: 16px; gap: 16px; }
+.vf-osd .osd-c { width: 26px; height: 26px; }
+.vf-osd .osd-af { left: 38%; top: 30%; width: clamp(80px, 22%, 120px); }
+.vf-foot { position: absolute; left: 16px; right: 16px; bottom: 16px; display: flex; align-items: center; gap: 14px; }
+.vf-step { color: var(--green); font-weight: 500; text-transform: uppercase; }
+
+@media (max-width: 860px) {
+  .fhero-grid { grid-template-columns: 1fr; }
+  .vfbox { width: min(100%, 420px); aspect-ratio: 4 / 4.4; }
+  .fhero-title { font-stretch: 108%; font-size: clamp(3rem, 15vw, 5rem); }
+}
+
+/* ── The engine ───────────────────────────────────────────────────── */
+.fe { padding-block: var(--pad); }
+.fe-powers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 clamp(24px, 3.4vw, 52px); border-bottom: 0; }
+.fe-powers li { border-bottom: 1px solid var(--line); }
+@media (max-width: 900px) { .fe-powers { grid-template-columns: 1fr; } .fe-powers li { border-bottom: 0; } .fe-powers li:last-child { border-bottom: 1px solid var(--line); } }
+
+/* ── The ladder ───────────────────────────────────────────────────── */
+.rungs-band { padding-block: var(--pad); background: var(--black); }
+.rungs { list-style: none; counter-reset: rung; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(12px, 1.6vw, 20px); }
+.rungs li { counter-increment: rung; position: relative; display: grid; align-content: start; gap: 10px; min-width: 0; padding: clamp(22px, 2.4vw, 32px); border: 1px solid var(--line); border-radius: 22px; background: var(--panel); }
+.rungs li::before { content: counter(rung); font-weight: 900; font-stretch: 118%; font-size: clamp(2.6rem, 3.6vw, 3.4rem); line-height: 0.85; color: var(--green); }
+.rungs h3 { margin: 0; font-weight: 850; font-stretch: 106%; font-size: clamp(1.3rem, 1.8vw, 1.6rem); line-height: 1.1; }
+.rungs p { margin: 0; color: var(--chalk-2); font-size: 0.98rem; }
+.rungs p b { display: block; margin-bottom: 2px; font: 500 0.72rem/1.4 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--smoke); }
+.rungs .gate { padding-top: 10px; border-top: 1px solid var(--line); color: var(--smoke); }
+@media (max-width: 960px) { .rungs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .rungs { grid-template-columns: 1fr; } }
+
+/* ── The seats ────────────────────────────────────────────────────── */
+.seats-band { padding-block: var(--pad); }
+.seats-scroll { overflow-x: auto; }
+.seats { width: 100%; border-collapse: collapse; }
+.seats thead th { padding: 0 20px 12px 0; text-align: left; font-weight: 800; font-size: 0.95rem; color: var(--smoke); border-bottom: 2px solid var(--chalk); }
+.seats tbody th { padding: 18px 20px 18px 0; text-align: left; vertical-align: top; font-weight: 900; font-stretch: 110%; font-size: clamp(1.2rem, 1.7vw, 1.5rem); line-height: 1.1; text-transform: uppercase; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.seats td { padding: 18px 20px 18px 0; vertical-align: top; color: var(--chalk-2); border-bottom: 1px solid var(--line); }
+.seats td:last-child { white-space: nowrap; color: var(--smoke); font-weight: 700; }
+.seats td.yes { color: var(--green); }
+.seats thead th:last-child { white-space: nowrap; }
+@media (max-width: 760px) {
+  .seats thead { display: none; }
+  .seats, .seats tbody, .seats tr, .seats th, .seats td { display: block; }
+  .seats tr { padding: 16px 0; border-bottom: 1px solid var(--line); }
+  .seats tbody th, .seats td { padding: 0; border: 0; white-space: normal; }
+  .seats tbody th { margin-bottom: 6px; }
+  .seats td + td { margin-top: 4px; font-size: 0.95rem; }
+  .seats td:nth-child(3)::before { content: "Kit: "; color: var(--smoke); }
+  .seats td:last-child::before { content: "Ages: "; color: var(--smoke); font-weight: 400; }
+}
+
+/* ── Mentorship, on the chalk band (css/site.css: .fellow) ───────── */
+.mentor-cols { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 clamp(24px, 3.4vw, 52px); border-top: 2px solid var(--black); }
+.mentor-cols li { padding: 20px 0 22px; min-width: 0; }
+.mentor-cols h3 { margin: 0 0 8px; font-weight: 900; font-stretch: 112%; font-size: clamp(1.4rem, 2.2vw, 2rem); line-height: 1; text-transform: uppercase; }
+.mentor-cols p { margin: 0; color: var(--ink-2); }
+.mentor-link { color: var(--ink); font-weight: 800; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; white-space: nowrap; }
+.mentor-disclose { margin: 18px 0 0; padding-top: 14px; border-top: 1px solid rgba(5, 6, 5, 0.18); }
+@media (max-width: 860px) { .mentor-cols { grid-template-columns: 1fr; } .mentor-cols li + li { border-top: 1px solid rgba(5, 6, 5, 0.16); } }
+
+/* ── The rules ────────────────────────────────────────────────────── */
+.safety-band { padding-block: var(--pad); }
+
+/* ── Two ways in (css/site.css: .packages, .plan) ─────────────────── */
+.plans-two { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 980px; }
+.price .per { align-self: flex-end; margin: 0 0 0.35em 8px; font-weight: 700; font-size: 1rem; color: var(--smoke); }
+.plan-notes { list-style: none; margin: clamp(22px, 2.6vw, 32px) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 12px 28px; color: var(--chalk-2); }
+.plan-notes li { display: flex; align-items: center; gap: 10px; }
+@media (max-width: 760px) { .plans-two { grid-template-columns: 1fr; } }
+
+/* ── The application, in the green band (css/site.css: .book, .form) ─ */
+.form-note { margin: 0; color: var(--smoke); font-size: 0.92rem; line-height: 1.45; }
+.guardian { padding: 14px; border: 1.5px dashed var(--line-2); border-radius: 16px; }
+.guardian .fgrid { margin-top: 12px; }
+.links { display: grid; gap: 8px; }
+.links legend { margin-bottom: 7px; }
+.links legend small { font-weight: 500; }
+.privacy { grid-column: span 6; }
+.seg-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
