@@ -108,4 +108,6 @@
 .links legend { margin-bottom: 7px; }
 .links legend small { font-weight: 500; }
 .privacy { grid-column: span 6; }
+/* Without JavaScript the form can't send: the email takes its place. */
+html:not(.js) [data-apply] { display: none; }
 .seg-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }

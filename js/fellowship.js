@@ -124,7 +124,7 @@
       gear: v("gear"),
       about: v("about"),
       confirmed: form.elements.confirmed.checked,
-      company: v("company"),
+      sm_trap: v("sm_trap"),
     };
   }
   // The same plain-address rule the TOJ app keeps.
@@ -192,12 +192,14 @@
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (data) { return { status: r.status, data: data }; }); })
       .then(function (res) {
         if (res.status === 200 && res.data && res.data.ok) return success(b);
-        if (res.status === 400 && res.data && res.data.fields) {
-          mark(res.data.fields.length ? res.data.fields : []);
-          say(res.data.fields.length ? "Check the highlighted fields." : "Something in the application didn't go through. Check it and send it again.", true);
+        // Fields to fix: point at them. Refused with nothing to point at: the
+        // email, so the applicant is never stuck.
+        if (res.status === 400 && res.data && Array.isArray(res.data.fields) && res.data.fields.length) {
+          mark(res.data.fields);
+          say("Check the highlighted fields.", true);
           return;
         }
-        if (res.status === 429) return fallback("That's a lot of applications from here.");
+        if (res.status === 429) return fallback("We can't take more applications from here right now.");
         fallback("We couldn't send it just now.");
       })
       .catch(function () { fallback("We couldn't send it just now."); })

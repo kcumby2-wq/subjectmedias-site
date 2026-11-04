@@ -403,7 +403,8 @@
     </div>
 
     <div data-book-slot>
-      <form class="form" data-book novalidate>
+      <!-- POST, so that if the script never runs nothing lands in a URL. -->
+      <form class="form" data-book method="post" action="/api/book" novalidate>
         <div class="fgrid">
           <fieldset class="f" data-f="kind">
             <legend>I'm booking for</legend>

@@ -217,7 +217,9 @@
     </div>
 
     <div data-apply-slot>
-      <form class="form" data-apply novalidate>
+      <noscript><div class="done"><h3>Email us your work.</h3><p>This form needs JavaScript. Send who you are, the city you're near, the seat you want and up to three links to hello@subjectmedias.com, and we'll reply within 48 hours.</p></div></noscript>
+      <!-- POST, so that if the script never runs nothing lands in a URL. -->
+      <form class="form" data-apply method="post" action="/api/apply" novalidate>
         <div class="fgrid">
           <label class="f" data-f="name"><span>Your name</span>
             <input class="input" name="name" type="text" maxlength="80" required autocomplete="name">
@@ -298,7 +300,7 @@
             <span data-confirm-text>I'm 16 or older, and the work I'm sending is mine.</span>
           </label>
           <p class="f form-note privacy">Your application goes to Kyron and the Subject Medias staff only. We use it to review your work and reach you, and we never post it. To have it deleted, email hello@subjectmedias.com.</p>
-          <div class="hp" aria-hidden="true"><label>Company <input type="text" name="company" tabindex="-1" autocomplete="off"></label></div>
+          <div class="hp" aria-hidden="true"><label>Leave this empty <input type="text" name="sm_trap" tabindex="-1" autocomplete="off"></label></div>
         </div>
         <div class="form-foot">
           <button class="pill pill-green" type="submit">Send my application</button>
