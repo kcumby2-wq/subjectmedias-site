@@ -292,3 +292,11 @@ test("webhook: not set up, nothing pretends to work", async () => {
   assert.equal(res.statusCode, 500);
   assert.equal(sent.length, 0);
 });
+
+test("vercel.json: the marketplace's /m/ pages go to the TOJ app; the site's own /media/ stays put", () => {
+  const cfg = JSON.parse(require("fs").readFileSync(require("path").join(__dirname, "..", "vercel.json"), "utf8"));
+  const m = cfg.rewrites.find((r) => r.source === "/m/:path*");
+  assert.ok(m, "the /m/ rewrite is there");
+  assert.equal(m.destination, "https://toj-csv-app.onrender.com/m/:path*");
+  assert.ok(!cfg.rewrites.some((r) => /^\/media/.test(r.source)), "nothing rewrites /media/");
+});

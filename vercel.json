@@ -23,6 +23,10 @@
     {
       "source": "/api/creators/public/:path*",
       "destination": "https://toj-csv-app.onrender.com/api/creators/public/:path*"
+    },
+    {
+      "source": "/m/:path*",
+      "destination": "https://toj-csv-app.onrender.com/m/:path*"
     }
   ],
   "headers": [
