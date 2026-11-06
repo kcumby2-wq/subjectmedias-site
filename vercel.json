@@ -1,0 +1,39 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/book.js": {
+      "maxDuration": 30
+    },
+    "api/stripe-webhook.js": {
+      "maxDuration": 30
+    },
+    "api/apply.js": {
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/fellowship",
+      "destination": "/fellowship.html"
+    },
+    {
+      "source": "/c/:slug",
+      "destination": "https://toj-csv-app.onrender.com/c/:slug"
+    },
+    {
+      "source": "/api/creators/public/:path*",
+      "destination": "https://toj-csv-app.onrender.com/api/creators/public/:path*"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/media/v2/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=604800, stale-while-revalidate=86400"
+        }
+      ]
+    }
+  ]
+}
