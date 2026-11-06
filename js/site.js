@@ -137,6 +137,8 @@
     var q = [];
     if (id && /^[0-9a-f-]{36}$/i.test(id)) q.push("client_reference_id=" + encodeURIComponent(id));
     if (email) q.push("prefilled_email=" + encodeURIComponent(email));
+    // The game-day code, once the visitor has seen it (js/offer.js).
+    if (window.smOffer && window.smOffer.seen) q.push("prefilled_promo_code=" + encodeURIComponent(window.smOffer.code));
     return url + (q.length ? "?" + q.join("&") : "");
   }
   function success(b, id) {
