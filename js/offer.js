@@ -1,43 +1,52 @@
-// The game-day offer: 10% off with code GAMEDAY10, through Dec 31, 2026.
+// The first-package offer, as on the old site: 10% off a first package,
+// claimed with a booking request rather than a code.
 //
 // After a visitor has spent 15 seconds on the homepage (only while the tab is
-// in view), a card shows the code once. It never opens over the booking form
-// or while someone is typing, and it waits until they're done. Once it has
-// shown, every "Buy" payment link carries the code (Stripe fills it in at
-// checkout), and so does the pay link after a booking request (js/site.js
-// reads window.smOffer).
-//
-// The code itself lives in Stripe: a 10% coupon with promotion code
-// GAMEDAY10, ending Dec 31, 2026, and each payment link set to allow
-// promotion codes. Remove this file's script tag once the offer ends.
+// in view), a card offers it once. It never opens over the booking form or
+// while someone is typing, and waits until they're done. "Claim my 10% off"
+// opens the booking form with the offer on:
+//   - the form says so at the top;
+//   - the request starts its notes with the claim, so the email alert and the
+//     app show it (js/site.js reads window.smOffer);
+//   - the panel after sending promises the payment link with the 10% taken
+//     off, instead of the full-price one.
+// The team takes the 10% off when they confirm the booking. Through Dec 31,
+// 2026: remove this file's script tag once the offer ends.
 (function () {
   "use strict";
 
-  var CODE = "GAMEDAY10";
   // The end of Dec 31, 2026 in New York.
   var ENDS = Date.UTC(2027, 0, 1, 5, 0, 0);
-  var KEY = "sm_offer_gameday10";
+  var SEEN = "sm_offer_first10";          // the card shows once per visitor
+  var CLAIMED = "sm_offer_first10_claim"; // claimed, for this tab
+  var NOTE = "Claimed the 10% first-package offer.";
   var WAIT_MS = 15000;
 
   if (Date.now() >= ENDS) return;
-  window.smOffer = { code: CODE, seen: false };
 
-  function seenBefore() { try { return localStorage.getItem(KEY) === "1"; } catch (e) { return false; } }
-  function remember() { try { localStorage.setItem(KEY, "1"); } catch (e) { /* private mode: it may show again */ } }
+  function get(store, k) { try { return window[store].getItem(k) === "1"; } catch (e) { return false; } }
+  function set(store, k) { try { window[store].setItem(k, "1"); } catch (e) { /* private mode */ } }
 
-  // Stripe fills the code in when a payment link allows promotion codes.
-  function withCode(url) {
-    if (!url || url.indexOf("prefilled_promo_code=") !== -1) return url;
-    return url + (url.indexOf("?") === -1 ? "?" : "&") + "prefilled_promo_code=" + CODE;
+  window.smOffer = { claimed: get("sessionStorage", CLAIMED), note: NOTE };
+
+  // The booking form, with the offer on.
+  function banner() {
+    var form = document.querySelector("[data-book]");
+    if (!form || form.querySelector(".offer-on")) return;
+    var p = document.createElement("p");
+    p.className = "offer-on";
+    p.textContent = "10% off your first package: we take it off when we confirm your booking.";
+    form.insertBefore(p, form.firstChild);
+    // Room for the claim at the start of the notes.
+    if (form.elements.notes) form.elements.notes.maxLength = 1000 - NOTE.length - 1;
   }
-  function applyCode() {
-    window.smOffer.seen = true;
-    Array.prototype.forEach.call(document.querySelectorAll("a[data-buy]"), function (a) {
-      a.setAttribute("href", withCode(a.getAttribute("href")));
-    });
+  function claim() {
+    window.smOffer.claimed = true;
+    set("sessionStorage", CLAIMED);
+    banner();
   }
-
-  if (seenBefore()) { applyCode(); return; }
+  if (window.smOffer.claimed) banner();
+  if (get("localStorage", SEEN)) return;
 
   // Somewhere the card would get in the way: the booking form open, or a field in use.
   function busy() {
@@ -61,34 +70,25 @@
   function onKey(e) {
     if (e.key === "Escape" && card && card.contains(document.activeElement)) close();
   }
-  function copy(btn) {
-    var done = function (t) { btn.textContent = t; };
-    try {
-      navigator.clipboard.writeText(CODE).then(function () { done("Copied"); }, function () { done(CODE); });
-    } catch (e) { done(CODE); }
-  }
 
   function show() {
     if (busy()) { setTimeout(show, 2000); return; }
-    remember();
-    applyCode();
+    set("localStorage", SEEN);
     card = document.createElement("aside");
     card.className = "offer";
     card.setAttribute("aria-labelledby", "offer-title");
     card.setAttribute("aria-live", "polite");
     card.innerHTML =
       '<button type="button" class="offer-x" aria-label="Close the offer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>' +
-      '<p class="offer-kicker">Game-day offer</p>' +
-      '<h2 class="offer-title" id="offer-title">10% off your game.</h2>' +
-      '<p class="offer-line">On photo, video or elite coverage, or a player transcript. Use it by Dec 31, 2026.</p>' +
-      '<div class="offer-code"><span class="offer-tag">' + CODE + '</span><button type="button" class="offer-copy">Copy code</button></div>' +
-      '<p class="offer-note">It fills itself in when you pay from this page.</p>' +
-      '<a class="pill pill-green offer-book" href="#book" data-open-book>Book coverage</a>';
+      '<p class="offer-kicker">First-package offer</p>' +
+      '<h2 class="offer-title" id="offer-title">10% off your first package.</h2>' +
+      "<p class=\"offer-line\">Still browsing? Tell us about your game, and we'll take 10% off when we reach out to book it.</p>" +
+      '<a class="pill pill-green offer-book" href="#book" data-open-book>Claim my 10% off</a>' +
+      '<p class="offer-note">We reply within 24 hours. Claim it by Dec 31, 2026.</p>';
     document.body.appendChild(card);
     card.querySelector(".offer-x").addEventListener("click", close);
-    card.querySelector(".offer-copy").addEventListener("click", function () { copy(this); });
-    // The booking form opens as usual (js/site.js, js/deck.js); the card steps aside.
-    card.querySelector(".offer-book").addEventListener("click", function () { setTimeout(close, 0); });
+    // The booking form opens as usual (js/site.js, js/deck.js), with the offer on.
+    card.querySelector(".offer-book").addEventListener("click", function () { claim(); setTimeout(close, 0); });
     document.addEventListener("keydown", onKey);
     requestAnimationFrame(function () { requestAnimationFrame(function () { if (card) card.classList.add("in"); }); });
   }
