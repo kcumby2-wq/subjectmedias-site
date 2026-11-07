@@ -21,7 +21,7 @@
 // readable), never from req.body: Stripe signs the exact bytes.
 
 const Stripe = require("stripe");
-const { checkoutFields, personal, isoDate, stateCode, cityState, packageFor, bookingFrom, productOf } = require("./_lib/stripe-booking");
+const { checkoutFields, personal, isoDate, stateCode, cityState, packageFor, bookingFrom, productOf, fromPaymentLink } = require("./_lib/stripe-booking");
 
 const BOOKINGS_URL = process.env.SM_BOOKINGS_URL || "https://toj-csv-app.onrender.com/api/sm/bookings/paid";
 
@@ -60,6 +60,9 @@ module.exports = async (req, res) => {
   const s = event.data.object;
   // A subscription or a saved card isn't a booking.
   if (s.mode && s.mode !== "payment") return res.status(200).json({ ignored: "not_a_payment" });
+  // Nor is a checkout that isn't on one of the site's payment links: clips
+  // from the marketplace (the TOJ app's own webhook takes those).
+  if (!fromPaymentLink(s)) return res.status(200).json({ ignored: "not_a_payment_link" });
   // A bank payment that hasn't cleared arrives again as async_payment_succeeded.
   if (s.payment_status !== "paid") return res.status(200).json({ ignored: "not_paid_yet" });
 

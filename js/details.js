@@ -50,6 +50,7 @@
     slot.appendChild(box);
     box.focus({ preventScroll: true });
   }
+  var clearing = "Your bank payment is still clearing. When it does, we'll email you a link to tell us about the game.";
   var byEmail = "Email the date, the city and state, and the team and jersey number to " + EMAIL + ", with the email you paid with, and we'll take it from there.";
   function notFound() {
     panel("We couldn't find that payment.", "If you paid, write to " + EMAIL + " with the email you paid with and we'll sort it out. Looking to book a game?", ["Book coverage", "/#book"]);
@@ -73,6 +74,7 @@
     .then(function (res) {
       if (res.status === 200 && res.data.status === "need_details") return showForm();
       if (res.status === 200 && res.data.status === "have_details") return panel("You're all set.", "Your payment is matched to the request you sent, so we know the game. We'll be in touch within 24 hours to confirm.");
+      if (res.status === 200 && res.data.status === "processing") return panel("Thanks for booking.", clearing);
       if (res.status === 404) return notFound();
       panel("Thanks for booking.", byEmail);
     })
@@ -122,6 +124,7 @@
       .then(function (res) {
         if (res.status === 200 && res.data.ok) return sent(res.data.already === true);
         if (res.status === 400 && res.data.fields) { mark(res.data.fields); say("Check the highlighted fields.", true); return; }
+        if (res.status === 409 && res.data.error === "processing") return panel("Thanks for booking.", clearing);
         if (res.status === 409) return panel("You're all set.", "Your payment is matched to the request you sent, so we know the game. We'll be in touch within 24 hours to confirm.");
         if (res.status === 404) return notFound();
         say(res.status === 429 ? "That's a lot of tries from here. " + byEmail : "We couldn't send it just now. " + byEmail, true);

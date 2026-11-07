@@ -10,6 +10,20 @@
 // name, a handle, an age or grade) stays in Stripe: here an athlete is a team
 // and a jersey number.
 
+// At most max characters, counted as Postgres counts them (code points), so a
+// cut never leaves half an emoji, which Postgres refuses.
+function clip(s, max) {
+  const t = String(s);
+  return t.length <= max ? t : Array.from(t).slice(0, max).join("");
+}
+
+// A checkout from one of the site's payment links. The marketplace's checkouts
+// (made by the TOJ app for clips, metadata kind sm_market) and anything else
+// made through Stripe's API have no payment link: they aren't bookings.
+function fromPaymentLink(s) {
+  return !!(s && s.payment_link) && !(s.metadata && s.metadata.kind === "sm_market");
+}
+
 const BY_NAME = [[/elite/i, "elite"], [/transcript/i, "transcript"], [/video/i, "video"], [/photo/i, "photo"], [/team/i, "team"], [/event/i, "event"]];
 const BY_CENTS = { 4999: "photo", 9999: "video", 13999: "elite", 24999: "transcript" };
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -138,12 +152,12 @@ function bookingFrom(s, product) {
     contact_email: cd.email || s.customer_email || "",
     contact_phone: cd.phone || "",
     sport: sport ? sport.out : "",
-    event_name: event ? event.out.slice(0, 120) : "",
+    event_name: event ? clip(event.out, 120) : "",
     event_date: date ? date.out : "",
-    event_city: city.slice(0, 80),
+    event_city: clip(city, 80),
     event_state: state,
-    team_jersey: teamJersey.slice(0, 60),
-    notes: notes.slice(0, 1000),
+    team_jersey: clip(teamJersey, 60),
+    notes: clip(notes, 1000),
   };
 }
 
@@ -159,4 +173,4 @@ async function productOf(stripe, sessionId) {
   }
 }
 
-module.exports = { SPORTS, STATES, UUID, checkoutFields, personal, isoDate, stateCode, cityState, packageFor, bookingFrom, productOf };
+module.exports = { SPORTS, STATES, UUID, clip, fromPaymentLink, checkoutFields, personal, isoDate, stateCode, cityState, packageFor, bookingFrom, productOf };

@@ -181,6 +181,9 @@ const session = (over = {}) => ({
   amount_total: 9999,
   amount_subtotal: 9999,
   client_reference_id: null,
+  payment_link: "plink_1QxYz2AbCdEf",
+  status: "complete",
+  metadata: {},
   customer_details: { name: "Jamie Parent", email: "jamie@example.com", phone: "+15550102030" },
   custom_fields: [],
   ...over,
@@ -265,6 +268,16 @@ test("webhook: a bad signature, a subscription, an unpaid bank transfer: nothing
   assert.equal(sent.length, 0);
 });
 
+test("webhook: only the site's payment links make bookings, never the marketplace's clip checkouts", async () => {
+  for (const s of [session({ payment_link: null }), session({ payment_link: "plink_1QxYz2AbCdEf", metadata: { kind: "sm_market", order_id: "8f14e45f-ceea-467e-a1d0-6f1d4c6b2a01" }, client_reference_id: "8f14e45f-ceea-467e-a1d0-6f1d4c6b2a01" })]) {
+    const res = fakeRes();
+    await hook(delivery(completed(s)), res);
+    assert.equal(res.statusCode, 200);
+    assert.equal(res.body.ignored, "not_a_payment_link");
+  }
+  assert.equal(sent.length, 0);
+});
+
 test("webhook: the app can't take it, so Stripe is told to try again", async () => {
   answer = async () => ({ ok: false, status: 503, json: async () => ({}) });
   let res = fakeRes();
@@ -303,6 +316,7 @@ test("vercel.json: the marketplace's /m/ pages go to the TOJ app; the site's own
 
 // ── /api/details: the buyer's answers after a direct Buy ─────────────────
 const details = require("../api/details");
+beforeEach(() => details._test.reset());
 let retrieve = async () => session();
 details._test.useStripe(() => ({ checkout: { sessions: { retrieve: (...a) => retrieve(...a), listLineItems: (...a) => lineItems(...a) } } }));
 const ask = (sid) => ({ method: "GET", headers: {}, query: { session: sid } });
@@ -321,7 +335,7 @@ test("details: a paid direct Buy asks about the game; a request's checkout is al
   res = fakeRes();
   await details(ask("cs_live_a1B2c3D4e5F6"), res);
   assert.deepEqual(res.body, { status: "have_details" });
-  for (const s of [session({ payment_status: "unpaid" }), session({ mode: "subscription" })]) {
+  for (const s of [session({ payment_status: "unpaid", status: "open" }), session({ mode: "subscription" })]) {
     retrieve = async () => s;
     res = fakeRes();
     await details(ask("cs_live_a1B2c3D4e5F6"), res);
@@ -369,7 +383,8 @@ test("details: the answers go to the app with the checkout, the secret and the v
   assert.equal(b.event_name, "Fall Classic Nov 20, 2026", "the checkout's, where they left it blank");
   assert.equal(b.event_city, "Dallas");
   assert.equal(b.team_jersey, "Lightning #11");
-  assert.equal(b.notes, "Field 3\n\nFrom the checkout: Shirt size: M");
+  assert.equal(b.notes, "Field 3", "their notes");
+  assert.equal(b.checkout_notes, "Shirt size: M", "the checkout's, apart, for the app to keep once");
   assert.ok(!JSON.stringify(b).includes("Jamie Smith"), "the athlete's name stays in Stripe");
 });
 
@@ -400,6 +415,53 @@ test("details: what the app says, the page hears; a request's checkout isn't ask
   res = fakeRes();
   await details({ method: "POST", headers: {}, body: [1] }, res);
   assert.equal(res.statusCode, 400);
+});
+
+test("details: a marketplace checkout or one off our payment links isn't ours; a bank payment clearing waits", async () => {
+  for (const s of [session({ payment_link: null }), session({ metadata: { kind: "sm_market" } })]) {
+    retrieve = async () => s;
+    const res = fakeRes();
+    await details(ask("cs_live_a1B2c3D4e5F6"), res);
+    assert.equal(res.statusCode, 404);
+  }
+  retrieve = async () => session({ payment_status: "unpaid", status: "complete" });
+  let res = fakeRes();
+  await details(ask("cs_live_a1B2c3D4e5F6"), res);
+  assert.deepEqual(res.body, { status: "processing" });
+  res = fakeRes();
+  await details(answers(), res);
+  assert.equal(res.statusCode, 409);
+  assert.equal(res.body.error, "processing");
+  retrieve = async () => session({ payment_status: "unpaid", status: "open" });
+  res = fakeRes();
+  await details(ask("cs_live_a1B2c3D4e5F6"), res);
+  assert.equal(res.statusCode, 404, "an abandoned checkout isn't a payment");
+  retrieve = async () => session();
+  assert.equal(sent.length, 0);
+});
+
+test("details: 20 calls per visitor per 10 minutes before anything reaches Stripe", async () => {
+  let asked = 0;
+  retrieve = async () => { asked++; return session(); };
+  for (let i = 0; i < 25; i++) await details({ method: "GET", headers: { "x-real-ip": "203.0.113.99" }, query: { session: "cs_live_a1B2c3D4e5F6" } }, fakeRes());
+  assert.equal(asked, 20);
+  const res = fakeRes();
+  await details({ method: "GET", headers: { "x-real-ip": "203.0.113.99" }, query: { session: "cs_live_a1B2c3D4e5F6" } }, res);
+  assert.equal(res.statusCode, 429);
+  const other = fakeRes();
+  await details({ method: "GET", headers: { "x-real-ip": "198.51.100.1" }, query: { session: "cs_live_a1B2c3D4e5F6" } }, other);
+  assert.equal(other.statusCode, 200);
+  retrieve = async () => session();
+});
+
+test("details: answers are cut by characters, never through an emoji", async () => {
+  const res = fakeRes();
+  await details(answers({ notes: "x".repeat(999) + "🏈🏈", event_city: "y".repeat(79) + "🏈🏈" }), res);
+  assert.equal(res.statusCode, 200);
+  const b = sent[0].body;
+  assert.equal(b.notes, "x".repeat(999) + "🏈");
+  assert.equal(b.event_city, "y".repeat(79) + "🏈");
+  assert.ok(!/[\uD800-\uDBFF]$/.test(b.notes) && !/[\uD800-\uDBFF]$/.test(b.event_city));
 });
 
 test("details: not set up, the page shows the email; other methods are refused", async () => {
