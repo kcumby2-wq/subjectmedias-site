@@ -24,11 +24,17 @@
   var page = document.body && document.body.getAttribute("data-count");
   if (page) count(page);
 
-  // Capture, so it counts even when another handler stops the click.
+  // A Buy tap is a package's Buy button (the price cards' links; on phones,
+  // the package buttons on the prices screen) or any payment link. Photo,
+  // video and elite open the form before Stripe, so a Buy tap isn't a
+  // checkout: set it beside requests sent and payments. Any other way into
+  // the form is a form open. Capture, so it counts even when another handler
+  // stops the click.
+  var BUY = '[data-buy], a[href^="https://buy.stripe.com/"], [data-open-book][data-package="photo"], [data-open-book][data-package="video"], [data-open-book][data-package="elite"]';
   document.addEventListener("click", function (e) {
     var t = e.target && e.target.closest ? e.target : null;
     if (!t) return;
-    if (t.closest('a[href^="https://buy.stripe.com/"]')) count("buy_tap");
+    if (t.closest(BUY)) count("buy_tap");
     else if (t.closest('[data-open-book], a[href="#book"]')) count("book_open");
   }, true);
 })();
