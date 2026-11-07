@@ -15,9 +15,9 @@
 }
 .fh-step { position: relative; display: block; width: max-content; max-width: calc(100% - 0.7em); transition: color 0.45s; }
 /* With the cycle running, the step in the viewfinder is bright and marked by
-   the play mark's triangle; the others wait in grey. Without it, all three
-   read at full strength. */
-.js .fhero.cycling .fh-step { color: #3c453d; }
+   the play mark's triangle; the others wait in grey, still 3.4:1 on the black
+   (large text needs 3:1). Without it, all three read at full strength. */
+.js .fhero.cycling .fh-step { color: #5a635b; }
 .js .fhero.cycling .fh-step.on { color: var(--chalk); }
 .fh-step::after {
   content: ""; position: absolute; top: 50%; right: -0.62em; width: 0.32em; height: 0.4em; margin-top: -0.22em;

@@ -10,7 +10,7 @@
 // repeat of the same checkout as already done.
 //
 // Settings on this Vercel project:
-//   STRIPE_SECRET_KEY      already here (the admin page uses it)
+//   STRIPE_SECRET_KEY      a restricted key that can read checkouts (Kyron adds it)
 //   STRIPE_WEBHOOK_SECRET  the signing secret Stripe shows for this endpoint
 //   SM_BOOKINGS_SECRET     the same value as on the TOJ app's Render service
 //   SM_BOOKINGS_URL        optional; defaults to the TOJ app's Render address

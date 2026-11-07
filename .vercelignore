@@ -1,3 +1,5 @@
 # Not part of the site: the functions' tests and the media tools.
 tests/
 scripts/
+# Kyron's push helper for Windows: a tool, not a page.
+push-to-github.bat
