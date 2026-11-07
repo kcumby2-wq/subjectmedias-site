@@ -42,7 +42,7 @@
   ],
   "headers": [
     {
-      "source": "/((?!m/|c/|api/creators/public/).*)",
+      "source": "/((?!m(?:/|$)|c/|api/creators/public(?:/|$)).*)",
       "headers": [
         {
           "key": "X-Content-Type-Options",

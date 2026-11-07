@@ -109,9 +109,10 @@ test("browser protections: on the site's own paths, never on the app's pages it 
   });
   // No path-to-regexp parameters in it, so as a regular expression it matches
   // what Vercel matches.
-  assert.equal(rule.source, "/((?!m/|c/|api/creators/public/).*)");
+  assert.equal(rule.source, "/((?!m(?:/|$)|c/|api/creators/public(?:/|$)).*)");
   const covers = (p) => new RegExp("^" + rule.source + "$").test(p);
-  for (const p of ["/", "/fellowship", "/details", "/index.html", "/js/site.js", "/css/site.css", "/media/v2/og.jpg", "/api/book", "/api/stripe-webhook", "/robots.txt", "/m", "/creators"]) assert.ok(covers(p), p);
-  for (const p of ["/m/", "/m/lima-2027", "/m/lima-2027/clips", "/c/kyron", "/api/creators/public/kyron"]) assert.ok(!covers(p), p);
+  for (const p of ["/", "/fellowship", "/details", "/index.html", "/js/site.js", "/css/site.css", "/media/v2/og.jpg", "/api/book", "/api/stripe-webhook", "/robots.txt", "/c", "/creators", "/media", "/mail"]) assert.ok(covers(p), p);
+  // /m/:path* and /api/creators/public/:path* match with no segment too.
+  for (const p of ["/m", "/m/", "/m/lima-2027", "/m/lima-2027/clips", "/c/kyron", "/api/creators/public", "/api/creators/public/", "/api/creators/public/kyron"]) assert.ok(!covers(p), p);
   for (const r of JSON.parse(read("vercel.json")).rewrites.filter((x) => /^https:/.test(x.destination) && x.source !== "/api/sm/site/count")) assert.ok(!covers(r.source.replace(/:[a-z]+\*?/g, "x")), `the app's page ${r.source} keeps its own headers`);
 });
