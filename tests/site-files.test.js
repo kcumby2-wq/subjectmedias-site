@@ -63,7 +63,10 @@ test("media: published only when a page uses it, and everything a page uses is p
   // Vercel reads them (gitignore rules, without regard to case): a rule with a
   // slash before its end is a path from the top; one without matches that
   // name at any depth; a trailing slash means a folder.
-  for (const l of rules) assert.match(l, /^[A-Za-z0-9._/-]+$/, `a plain path, not a pattern: ${l}`);
+  for (const l of rules) {
+    assert.match(l, /^[A-Za-z0-9._/-]+$/, `a plain path, not a pattern: ${l}`);
+    assert.doesNotMatch(l, /^\.?\//, `no leading "/" or "./" (Vercel reads those differently): ${l}`);
+  }
   const ignored = (f) => rules.some((l) => {
     const dir = l.endsWith("/"), name = (dir ? l.slice(0, -1) : l).toLowerCase(), file = f.toLowerCase();
     if (name.includes("/")) return file === name ? !dir : file.startsWith(name + "/");
