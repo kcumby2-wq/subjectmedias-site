@@ -71,6 +71,16 @@ test("counts: the live site only, never with Global Privacy Control, and each pa
   assert.doesNotMatch(read("details.html"), /count\.js/);
 });
 
+test("counts: a package's Buy is a Buy tap on phones too", () => {
+  const js = read("js/count.js"), html = read("index.html");
+  // Every package button on the phones' prices screen is named in the Buy
+  // taps, so the same choice counts the same way on every screen.
+  const phone = [...html.matchAll(/<button type="button" data-open-book data-package="([a-z]+)"/g)].map((m) => m[1]);
+  assert.deepEqual(phone.sort(), ["elite", "photo", "video"]);
+  for (const pkg of phone) assert.ok(js.includes(`[data-open-book][data-package="${pkg}"]`), pkg);
+  assert.match(js, /if \(t\.closest\(BUY\)\) count\("buy_tap"\);\s*else if/);
+});
+
 test("pay now: each priced package's Buy button and the form's checkout are the same Stripe link", () => {
   const html = read("index.html"), js = read("js/site.js");
   for (const pkg of ["photo", "video", "elite", "transcript"]) {
