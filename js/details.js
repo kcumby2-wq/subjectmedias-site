@@ -50,7 +50,7 @@
     slot.appendChild(box);
     box.focus({ preventScroll: true });
   }
-  var clearing = "Your bank payment is still clearing. When it does, we'll email you a link to tell us about the game.";
+  var clearing = "Your bank payment is still clearing, which can take a few business days. When it clears, we'll email you a link to tell us about the game. Questions? Email " + EMAIL + ".";
   var byEmail = "Email the date, the city and state, and the team and jersey number to " + EMAIL + ", with the email you paid with, and we'll take it from there.";
   function notFound() {
     panel("We couldn't find that payment.", "If you paid, write to " + EMAIL + " with the email you paid with and we'll sort it out. Looking to book a game?", ["Book coverage", "/#book"]);

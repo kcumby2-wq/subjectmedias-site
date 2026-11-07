@@ -62,7 +62,12 @@ module.exports = async (req, res) => {
   if (s.mode && s.mode !== "payment") return res.status(200).json({ ignored: "not_a_payment" });
   // Nor is a checkout that isn't on one of the site's payment links: clips
   // from the marketplace (the TOJ app's own webhook takes those).
-  if (!fromPaymentLink(s)) return res.status(200).json({ ignored: "not_a_payment_link" });
+  if (!fromPaymentLink(s)) {
+    // Expected for marketplace orders; anything else paid this way would need
+    // a look, so the log says which checkout it was.
+    if (!(s.metadata && s.metadata.kind === "sm_market")) console.warn("stripe-webhook: a paid checkout not on a payment link, left alone:", s.id);
+    return res.status(200).json({ ignored: "not_a_payment_link" });
+  }
   // A bank payment that hasn't cleared arrives again as async_payment_succeeded.
   if (s.payment_status !== "paid") return res.status(200).json({ ignored: "not_paid_yet" });
 
