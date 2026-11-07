@@ -608,3 +608,7 @@ html.deck-on .sheet { display: flex; }
 /* Phones: the form right under the thanks; the steps say what the lede already does. */
 @media (max-width: 900px) { .details { padding-block: 2.25rem 3.5rem; } .details .book-steps { display: none; } .details .alt { margin-top: 0; } }
 
+/* Pay now: under the form when a package's Buy button opened it. */
+.pay-note { margin: 16px 0 0; color: var(--chalk-2); font-size: 0.92rem; }
+.pay-note button { padding: 0; border: 0; background: none; color: var(--green); font: inherit; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.sheet .pay-note { margin-top: 14px; }

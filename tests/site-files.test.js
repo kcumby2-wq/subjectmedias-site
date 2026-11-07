@@ -70,3 +70,14 @@ test("counts: the live site only, never with Global Privacy Control, and each pa
   assert.match(read("fellowship.html"), /<body data-count="visit_fellowship">/);
   assert.doesNotMatch(read("details.html"), /count\.js/);
 });
+
+test("pay now: each priced package's Buy button and the form's checkout are the same Stripe link", () => {
+  const html = read("index.html"), js = read("js/site.js");
+  for (const pkg of ["photo", "video", "elite", "transcript"]) {
+    const btn = new RegExp(`href="(https://buy\\.stripe\\.com/[A-Za-z0-9]+)" data-buy="${pkg}"`).exec(html);
+    const pay = new RegExp(`${pkg}: \\["[^"]+", "(https://buy\\.stripe\\.com/[A-Za-z0-9]+)"\\]`).exec(js);
+    assert.ok(btn && pay, pkg);
+    assert.equal(btn[1], pay[1], `${pkg}: the Buy button and the form go to the same checkout`);
+  }
+  assert.match(js, /var PRICES = \{ photo: \["Photo coverage", "\$49\.99"\], video: \["Video coverage", "\$99\.99"\], elite: \["Elite coverage", "\$139\.99"\] \};/);
+});
