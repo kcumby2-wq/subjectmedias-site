@@ -193,7 +193,9 @@
   // a request. Capture, so it's set before js/deck.js opens the sheet.
   document.addEventListener("click", function (e) {
     var t = e.target && e.target.closest ? e.target.closest("[data-buy], [data-open-book], a[href='#book']") : null;
-    if (!t || form.contains(t)) return;
+    // Once a request is sent the form gives way to the thank-you panel: from
+    // then on the Buy buttons are plain links to Stripe again.
+    if (!t || form.contains(t) || !form.isConnected) return;
     var pkg = t.getAttribute("data-buy") || t.getAttribute("data-package");
     if (!PRICES[pkg]) { if (!t.hasAttribute("data-buy")) setPay(false); return; }
     var athlete = $("input[name=kind][value=athlete]", form);
@@ -212,10 +214,29 @@
 
   // The request is saved: on to Stripe. If it couldn't be saved, they can
   // still pay (the payment arrives as a booking of its own) or write to us.
+  var sending = false;
+  var checkoutUrl = "";
   function toCheckout(b, id) {
+    checkoutUrl = payLink(PAY[b.package][1], id, b.contact_email);
     say("Taking you to checkout…", false);
-    window.location.assign(payLink(PAY[b.package][1], id, b.contact_email));
+    window.location.assign(checkoutUrl);
   }
+  // Back from Stripe without paying, with the page as it was left: the
+  // details are saved, so offer the same checkout rather than a stuck form.
+  window.addEventListener("pageshow", function (e) {
+    if (!e.persisted || !checkoutUrl) return;
+    sending = false;
+    submitBtn.disabled = false;
+    msg.textContent = "Your details are saved. ";
+    msg.classList.remove("err");
+    var a = document.createElement("a");
+    a.className = "pill pill-green";
+    a.style.minHeight = "38px";
+    a.style.padding = "0.5em 1em";
+    a.href = checkoutUrl;
+    a.textContent = "Continue to payment";
+    msg.appendChild(a);
+  });
   function payAnyway(b, text) {
     fallback(text);
     var a = document.createElement("a");
@@ -228,7 +249,6 @@
     msg.appendChild(a);
   }
 
-  var sending = false;
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     if (sending) return;
