@@ -9,12 +9,19 @@
     },
     "api/apply.js": {
       "maxDuration": 30
+    },
+    "api/details.js": {
+      "maxDuration": 30
     }
   },
   "rewrites": [
     {
       "source": "/fellowship",
       "destination": "/fellowship.html"
+    },
+    {
+      "source": "/details",
+      "destination": "/details.html"
     },
     {
       "source": "/c/:slug",
@@ -27,6 +34,10 @@
     {
       "source": "/m/:path*",
       "destination": "https://toj-csv-app.onrender.com/m/:path*"
+    },
+    {
+      "source": "/api/sm/site/count",
+      "destination": "https://toj-csv-app.onrender.com/api/sm/site/count"
     }
   ],
   "headers": [

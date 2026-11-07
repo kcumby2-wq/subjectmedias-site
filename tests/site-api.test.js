@@ -300,3 +300,122 @@ test("vercel.json: the marketplace's /m/ pages go to the TOJ app; the site's own
   assert.equal(m.destination, "https://toj-csv-app.onrender.com/m/:path*");
   assert.ok(!cfg.rewrites.some((r) => /^\/media/.test(r.source)), "nothing rewrites /media/");
 });
+
+// ── /api/details: the buyer's answers after a direct Buy ─────────────────
+const details = require("../api/details");
+let retrieve = async () => session();
+details._test.useStripe(() => ({ checkout: { sessions: { retrieve: (...a) => retrieve(...a), listLineItems: (...a) => lineItems(...a) } } }));
+const ask = (sid) => ({ method: "GET", headers: {}, query: { session: sid } });
+const answers = (over = {}) => ({
+  method: "POST",
+  headers: { "x-real-ip": "203.0.113.20" },
+  body: { stripe_session_id: "cs_live_a1B2c3D4e5F6", sport: "Football", event_date: "2026-11-21", event_city: "Dallas", event_state: "TX", team_jersey: "Lightning #11", notes: "Field 3", adult_confirmed: true, ...over },
+});
+const missing = Object.assign(new Error("No such checkout.session"), { statusCode: 404, code: "resource_missing" });
+
+test("details: a paid direct Buy asks about the game; a request's checkout is all set; anything else isn't ours", async () => {
+  let res = fakeRes();
+  await details(ask("cs_live_a1B2c3D4e5F6"), res);
+  assert.deepEqual(res.body, { status: "need_details", package: "video" });
+  retrieve = async () => session({ client_reference_id: "8f14e45f-ceea-467e-a1d0-6f1d4c6b2a01" });
+  res = fakeRes();
+  await details(ask("cs_live_a1B2c3D4e5F6"), res);
+  assert.deepEqual(res.body, { status: "have_details" });
+  for (const s of [session({ payment_status: "unpaid" }), session({ mode: "subscription" })]) {
+    retrieve = async () => s;
+    res = fakeRes();
+    await details(ask("cs_live_a1B2c3D4e5F6"), res);
+    assert.equal(res.statusCode, 404);
+  }
+  retrieve = async () => { throw missing; };
+  res = fakeRes();
+  await details(ask("cs_live_a1B2c3D4e5F6"), res);
+  assert.equal(res.statusCode, 404);
+  // Not even the shape of a checkout: Stripe isn't asked.
+  let asked = false;
+  retrieve = async () => { asked = true; return session(); };
+  for (const sid of ["", "pi_123", "cs_live_../../x", "cs_x"]) {
+    res = fakeRes();
+    await details(ask(sid), res);
+    assert.equal(res.statusCode, 404, sid);
+  }
+  assert.equal(asked, false);
+  retrieve = async () => { throw new Error("Stripe is down"); };
+  res = fakeRes();
+  await details(ask("cs_live_a1B2c3D4e5F6"), res);
+  assert.equal(res.statusCode, 503);
+  retrieve = async () => session();
+});
+
+test("details: the answers go to the app with the checkout, the secret and the visitor", async () => {
+  retrieve = async () => session({ custom_fields: [field("Athlete name", "Jamie Smith"), field("Event & date", "Fall Classic Nov 20, 2026"), field("Shirt size", "M")] });
+  const res = fakeRes();
+  await details(answers(), res);
+  retrieve = async () => session();
+  assert.equal(res.statusCode, 200);
+  assert.deepEqual(res.body, { ok: true, already: false });
+  assert.equal(sent.length, 1);
+  assert.match(sent[0].url, /\/api\/sm\/bookings\/paid$/);
+  assert.equal(sent[0].init.headers["X-SM-Secret"], SECRET);
+  assert.equal(sent[0].init.headers["X-SM-Visitor"], "203.0.113.20");
+  const b = sent[0].body;
+  assert.equal(b.details, true);
+  assert.equal(b.adult_confirmed, true);
+  assert.equal(b.booking_id, null);
+  assert.equal(b.stripe_session_id, "cs_live_a1B2c3D4e5F6");
+  assert.equal(b.package, "video");
+  assert.equal(b.contact_email, "jamie@example.com");
+  assert.equal(b.event_date, "2026-11-21", "their answer over the checkout's");
+  assert.equal(b.event_name, "Fall Classic Nov 20, 2026", "the checkout's, where they left it blank");
+  assert.equal(b.event_city, "Dallas");
+  assert.equal(b.team_jersey, "Lightning #11");
+  assert.equal(b.notes, "Field 3\n\nFrom the checkout: Shirt size: M");
+  assert.ok(!JSON.stringify(b).includes("Jamie Smith"), "the athlete's name stays in Stripe");
+});
+
+test("details: what the app says, the page hears; a request's checkout isn't asked", async () => {
+  answer = async () => ({ ok: true, status: 200, json: async () => ({ ok: true, duplicate: true, already: true }) });
+  let res = fakeRes();
+  await details(answers(), res);
+  assert.deepEqual(res.body, { ok: true, already: true });
+  answer = async () => ({ ok: false, status: 400, json: async () => ({ error: "invalid", fields: ["event_date", 7, "adult_confirmed"] }) });
+  res = fakeRes();
+  await details(answers(), res);
+  assert.deepEqual(res.body, { error: "invalid", fields: ["event_date", "adult_confirmed"] });
+  answer = async () => ({ ok: false, status: 429, json: async () => ({}) });
+  res = fakeRes();
+  await details(answers(), res);
+  assert.equal(res.statusCode, 429);
+  answer = async () => { throw new Error("connect ECONNREFUSED"); };
+  res = fakeRes();
+  await details(answers(), res);
+  assert.equal(res.statusCode, 503);
+  sent = [];
+  retrieve = async () => session({ client_reference_id: "8f14e45f-ceea-467e-a1d0-6f1d4c6b2a01" });
+  res = fakeRes();
+  await details(answers(), res);
+  retrieve = async () => session();
+  assert.equal(res.statusCode, 409);
+  assert.equal(sent.length, 0);
+  res = fakeRes();
+  await details({ method: "POST", headers: {}, body: [1] }, res);
+  assert.equal(res.statusCode, 400);
+});
+
+test("details: not set up, the page shows the email; other methods are refused", async () => {
+  delete process.env.STRIPE_SECRET_KEY;
+  let res = fakeRes();
+  await details(ask("cs_live_a1B2c3D4e5F6"), res);
+  assert.equal(res.statusCode, 503);
+  res = fakeRes();
+  await details({ method: "DELETE", headers: {} }, res);
+  assert.equal(res.statusCode, 405);
+  assert.equal(sent.length, 0);
+});
+
+test("vercel.json: /details is its page; the counts go to the TOJ app", () => {
+  const cfg = JSON.parse(require("fs").readFileSync(require("path").join(__dirname, "..", "vercel.json"), "utf8"));
+  assert.ok(cfg.rewrites.some((r) => r.source === "/details" && r.destination === "/details.html"));
+  assert.ok(cfg.rewrites.some((r) => r.source === "/api/sm/site/count" && r.destination === "https://toj-csv-app.onrender.com/api/sm/site/count"));
+  assert.equal(cfg.functions["api/details.js"].maxDuration, 30);
+});
