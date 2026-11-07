@@ -59,12 +59,22 @@ test("Kyron's push helper isn't served", () => {
 // media/ is one a page uses, and everything a page uses is published.
 test("media: published only when a page uses it, and everything a page uses is published", () => {
   const rules = read(".vercelignore").split("\n").map((l) => l.trim()).filter((l) => l && !l.startsWith("#"));
-  // Plain paths and folders only, so this reads the file the way Vercel does.
+  // Plain paths and folders only (no wildcards or negation), read the way
+  // Vercel reads them (gitignore rules, without regard to case): a rule with a
+  // slash before its end is a path from the top; one without matches that
+  // name at any depth; a trailing slash means a folder.
   for (const l of rules) assert.match(l, /^[A-Za-z0-9._/-]+$/, `a plain path, not a pattern: ${l}`);
-  const ignored = (f) => rules.some((l) => (l.endsWith("/") ? f.startsWith(l) : f === l));
+  const ignored = (f) => rules.some((l) => {
+    const dir = l.endsWith("/"), name = (dir ? l.slice(0, -1) : l).toLowerCase(), file = f.toLowerCase();
+    if (name.includes("/")) return file === name ? !dir : file.startsWith(name + "/");
+    const parts = file.split("/");
+    return (dir ? parts.slice(0, -1) : parts).includes(name);
+  });
   const walk = (dir) => fs.readdirSync(path.join(ROOT, dir), { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(dir + "/" + e.name) : [dir + "/" + e.name]));
   const published = walk("media").filter((f) => !ignored(f));
-  const sources = ["index.html", "fellowship.html", "details.html", "sitemap.xml", ...fs.readdirSync(path.join(ROOT, "css")).map((f) => "css/" + f), ...fs.readdirSync(path.join(ROOT, "js")).map((f) => "js/" + f)];
+  const pages = fs.readdirSync(ROOT).filter((f) => f.endsWith(".html"));
+  assert.ok(pages.includes("index.html") && pages.includes("details.html"), "the pages were found");
+  const sources = [...pages, "sitemap.xml", ...fs.readdirSync(path.join(ROOT, "css")).map((f) => "css/" + f), ...fs.readdirSync(path.join(ROOT, "js")).map((f) => "js/" + f)];
   const used = new Set(sources.flatMap((f) => [...read(f).matchAll(/media\/[A-Za-z0-9_./-]+\.[a-z0-9]+/g)].map((m) => m[0])));
   assert.ok(used.size > 20, "the pages' media were found");
   for (const f of published) assert.ok(used.has(f), `published but no page uses it: ${f} (use it, or list it in .vercelignore)`);
@@ -73,6 +83,10 @@ test("media: published only when a page uses it, and everything a page uses is p
     assert.ok(!ignored(f), `a page uses a file that isn't published: ${f}`);
   }
   for (const old of ["media/athlete-photos/ath-soccer.png", "media/event-photos/event-13-plano-lacrosse.jpg", "media/action-reel-2.mp4"]) assert.ok(ignored(old), old);
+  // The matcher reads rules as Vercel does: a name without a slash at any
+  // depth, any case.
+  assert.ok(ignored("media/v2/scripts/x.webp") && ignored("Tests/a.js") && ignored("a/push-to-github.bat"));
+  assert.ok(!ignored("media/v2/og.jpg") && !ignored("media/athlete-photos.txt"));
 });
 
 test("the details page: never indexed, and its checkout id never leaves in a Referer", () => {
