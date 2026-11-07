@@ -70,3 +70,25 @@ test("counts: the live site only, never with Global Privacy Control, and each pa
   assert.match(read("fellowship.html"), /<body data-count="visit_fellowship">/);
   assert.doesNotMatch(read("details.html"), /count\.js/);
 });
+
+test("every page's footer links the privacy policy, the terms and the refund policy", () => {
+  for (const f of ["index.html", "fellowship.html", "details.html", "privacy.html", "terms.html", "refunds.html"]) {
+    const foot = read(f).split('<footer class="foot">')[1] || "";
+    for (const href of ["/privacy", "/terms", "/refunds"]) assert.ok(foot.includes(`<a href="${href}">`), `${f} → ${href}`);
+  }
+});
+
+test("the forms that collect details link the privacy policy", () => {
+  assert.match(read("index.html"), /data-book[\s\S]*<a href="\/privacy">How we handle them<\/a>/);
+  assert.match(read("details.html"), /<a href="\/privacy">How we handle them<\/a>/);
+  assert.match(read("fellowship.html"), /form-note privacy[^\n]*<a href="\/privacy">/);
+});
+
+// The drafts carry notes for Kyron and counsel; they come out before the
+// pages go live. Until then this is a to-do, not a failure.
+test("the legal pages have no draft notes left", { todo: "waiting on Kyron's answers and counsel's review" }, () => {
+  for (const f of ["privacy.html", "terms.html", "refunds.html"]) {
+    const html = read(f);
+    assert.doesNotMatch(html, /legal-draft|class="tbc"/, f);
+  }
+});
