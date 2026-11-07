@@ -25,6 +25,7 @@
 </script>
 <script defer src="/js/site.js"></script>
 <script defer src="/js/deck.js"></script>
+<script defer src="/js/offer.js"></script>
 </head>
 <body>
 <a class="skip" href="#book">Skip to booking</a>
@@ -77,7 +78,22 @@
       </div>
     </section>
 
-    <section class="dk dk-text" aria-roledescription="slide" aria-label="3 of 10">
+    <section class="dk dk-text dk-price" aria-roledescription="slide" aria-label="3 of 10">
+      <video class="dk-media" data-src="/media/v2/deck/drills.mp4" poster="/media/v2/deck/drills.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
+      <div class="dk-shade"></div>
+      <div class="dk-copy">
+        <h2 class="dk-title">Pick your coverage.</h2>
+        <ul class="dk-prices">
+          <li><button type="button" data-open-book data-package="photo" aria-label="Book photo coverage, $49.99"><span class="dk-p-name">Photo</span><span class="dk-p-what">15+ edited photos</span><span class="dk-p-price">$49<small>.99</small></span></button></li>
+          <li><button type="button" data-open-book data-package="video" aria-label="Book video coverage, $99.99"><span class="dk-p-name">Video</span><span class="dk-p-what">A highlight video and clips</span><span class="dk-p-price">$99<small>.99</small></span></button></li>
+          <li class="top"><button type="button" data-open-book data-package="elite" aria-label="Book elite coverage, $139.99, the most booked"><span class="dk-p-name">Elite <em>Most booked</em></span><span class="dk-p-what">Photo and video of the full event</span><span class="dk-p-price">$139<small>.99</small></span></button></li>
+        </ul>
+        <div class="dk-btns"><a class="pill pill-green" href="#book" data-open-book>Book coverage</a></div>
+        <p class="dk-small">Delivered within 48 hours. Add a player transcript for $249.99.</p>
+      </div>
+    </section>
+
+    <section class="dk dk-text" aria-roledescription="slide" aria-label="4 of 10">
       <div class="dk-flash" data-flash aria-hidden="true">
         <img class="show" data-src="/media/v2/work-lacrosse.webp" alt="">
         <img data-src="/media/v2/work-catch.webp" alt="">
@@ -93,7 +109,7 @@
       </div>
     </section>
 
-    <section class="dk dk-text" aria-roledescription="slide" aria-label="4 of 10">
+    <section class="dk dk-text" aria-roledescription="slide" aria-label="5 of 10">
       <video class="dk-media" data-src="/media/v2/deck/wide.mp4" poster="/media/v2/deck/wide.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
       <div class="dk-shade"></div>
       <div class="dk-copy">
@@ -102,7 +118,7 @@
       </div>
     </section>
 
-    <section class="dk dk-text" aria-roledescription="slide" aria-label="5 of 10">
+    <section class="dk dk-text" aria-roledescription="slide" aria-label="6 of 10">
       <img class="dk-media dk-kb" data-src="/media/v2/crew-ky.webp" alt="">
       <div class="dk-shade"></div>
       <div class="dk-copy">
@@ -111,7 +127,7 @@
       </div>
     </section>
 
-    <section class="dk dk-text dk-fellow" aria-roledescription="slide" aria-label="6 of 10">
+    <section class="dk dk-text dk-fellow" aria-roledescription="slide" aria-label="7 of 10">
       <img class="dk-media dk-kb" data-src="/media/v2/crew-chris.webp" alt="">
       <div class="dk-shade"></div>
       <div class="dk-copy">
@@ -119,20 +135,6 @@
         <ol class="dk-ladder" aria-label="How a creator comes up"><li>Shadow</li><li>Shoot</li><li>Lead</li></ol>
         <p class="dk-line">Every creator we send came up through our fellowship, and the leads train whoever comes next.</p>
         <div class="dk-btns"><a class="pill pill-line" href="/fellowship">See the fellowship</a></div>
-      </div>
-    </section>
-
-    <section class="dk dk-text dk-price" aria-roledescription="slide" aria-label="7 of 10">
-      <video class="dk-media" data-src="/media/v2/deck/drills.mp4" poster="/media/v2/deck/drills.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
-      <div class="dk-shade"></div>
-      <div class="dk-copy">
-        <h2 class="dk-title">Pick your coverage.</h2>
-        <ul class="dk-prices">
-          <li><button type="button" data-open-book data-package="photo" aria-label="Book photo coverage, $49.99"><span class="dk-p-name">Photo</span><span class="dk-p-what">15+ edited photos</span><span class="dk-p-price">$49<small>.99</small></span></button></li>
-          <li><button type="button" data-open-book data-package="video" aria-label="Book video coverage, $99.99"><span class="dk-p-name">Video</span><span class="dk-p-what">A highlight video and clips</span><span class="dk-p-price">$99<small>.99</small></span></button></li>
-          <li class="top"><button type="button" data-open-book data-package="elite" aria-label="Book elite coverage, $139.99, the most booked"><span class="dk-p-name">Elite <em>Most booked</em></span><span class="dk-p-what">Photo and video of the full event</span><span class="dk-p-price">$139<small>.99</small></span></button></li>
-        </ul>
-        <p class="dk-small">Delivered within 48 hours. Add a player transcript for $249.99.</p>
       </div>
     </section>
 
