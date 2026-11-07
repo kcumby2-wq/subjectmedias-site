@@ -54,6 +54,27 @@ test("Kyron's push helper isn't served", () => {
   assert.match(read(".vercelignore"), /^push-to-github\.bat$/m);
 });
 
+// Media from the earlier site was never checked against the shot rule for
+// minors, so nothing goes out that no page uses: every published file under
+// media/ is one a page uses, and everything a page uses is published.
+test("media: published only when a page uses it, and everything a page uses is published", () => {
+  const rules = read(".vercelignore").split("\n").map((l) => l.trim()).filter((l) => l && !l.startsWith("#"));
+  // Plain paths and folders only, so this reads the file the way Vercel does.
+  for (const l of rules) assert.match(l, /^[A-Za-z0-9._/-]+$/, `a plain path, not a pattern: ${l}`);
+  const ignored = (f) => rules.some((l) => (l.endsWith("/") ? f.startsWith(l) : f === l));
+  const walk = (dir) => fs.readdirSync(path.join(ROOT, dir), { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(dir + "/" + e.name) : [dir + "/" + e.name]));
+  const published = walk("media").filter((f) => !ignored(f));
+  const sources = ["index.html", "fellowship.html", "details.html", "sitemap.xml", ...fs.readdirSync(path.join(ROOT, "css")).map((f) => "css/" + f), ...fs.readdirSync(path.join(ROOT, "js")).map((f) => "js/" + f)];
+  const used = new Set(sources.flatMap((f) => [...read(f).matchAll(/media\/[A-Za-z0-9_./-]+\.[a-z0-9]+/g)].map((m) => m[0])));
+  assert.ok(used.size > 20, "the pages' media were found");
+  for (const f of published) assert.ok(used.has(f), `published but no page uses it: ${f} (use it, or list it in .vercelignore)`);
+  for (const f of used) {
+    assert.ok(fs.existsSync(path.join(ROOT, f)), `a page uses a file that isn't there: ${f}`);
+    assert.ok(!ignored(f), `a page uses a file that isn't published: ${f}`);
+  }
+  for (const old of ["media/athlete-photos/ath-soccer.png", "media/event-photos/event-13-plano-lacrosse.jpg", "media/action-reel-2.mp4"]) assert.ok(ignored(old), old);
+});
+
 test("the details page: never indexed, and its checkout id never leaves in a Referer", () => {
   const html = read("details.html");
   assert.match(html, /<meta name="robots" content="noindex">/);

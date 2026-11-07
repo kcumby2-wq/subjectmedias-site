@@ -3,3 +3,18 @@ tests/
 scripts/
 # Kyron's push helper for Windows: a tool, not a page.
 push-to-github.bat
+# Media from the earlier site that no page uses. Never checked against the
+# shot rule for minors (wide, non-identifying shots only), so it isn't
+# published: it stays in the repo, but no address on the site serves it.
+# Everything the pages use is in media/v2 (tests/site-files.test.js checks
+# that every published file under media/ is one a page uses).
+media/athlete-photos/
+media/carousel/
+media/crew-photos/
+media/event-photos/
+media/action-reel-2.mp4
+media/action-reel-3.mp4
+media/hero-bg-new.mp4
+media/highlight-reel.mp4
+media/pylon-rated.mp4
+media/pylon.mp4
