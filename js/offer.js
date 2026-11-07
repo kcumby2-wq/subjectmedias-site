@@ -6,8 +6,8 @@
 // while someone is typing, and waits until they're done. "Claim my 10% off"
 // opens the booking form with the offer on:
 //   - the form says so at the top;
-//   - the request starts its notes with the claim, so the email alert and the
-//     app show it (js/site.js reads window.smOffer);
+//   - the request carries the claim (offer: first10), so the email alert and
+//     the app show it (js/site.js reads window.smOffer);
 //   - the panel after sending promises the payment link with the 10% taken
 //     off, instead of the full-price one.
 // The team takes the 10% off when they confirm the booking. Through Dec 31,
@@ -19,7 +19,6 @@
   var ENDS = Date.UTC(2027, 0, 1, 5, 0, 0);
   var SEEN = "sm_offer_first10";          // the card shows once per visitor
   var CLAIMED = "sm_offer_first10_claim"; // claimed, for this tab
-  var NOTE = "Claimed the 10% first-package offer.";
   var WAIT_MS = 15000;
 
   if (Date.now() >= ENDS) return;
@@ -27,7 +26,7 @@
   function get(store, k) { try { return window[store].getItem(k) === "1"; } catch (e) { return false; } }
   function set(store, k) { try { window[store].setItem(k, "1"); } catch (e) { /* private mode */ } }
 
-  window.smOffer = { claimed: get("sessionStorage", CLAIMED), note: NOTE };
+  window.smOffer = { claimed: get("sessionStorage", CLAIMED), code: "first10" };
 
   // The booking form, with the offer on.
   function banner() {
@@ -37,8 +36,6 @@
     p.className = "offer-on";
     p.textContent = "10% off your first package: we take it off when we confirm your booking.";
     form.insertBefore(p, form.firstChild);
-    // Room for the claim at the start of the notes.
-    if (form.elements.notes) form.elements.notes.maxLength = 1000 - NOTE.length - 1;
   }
   function claim() {
     window.smOffer.claimed = true;
@@ -86,6 +83,7 @@
       '<a class="pill pill-green offer-book" href="#book" data-open-book>Claim my 10% off</a>' +
       '<p class="offer-note">We reply within 24 hours. Claim it by Dec 31, 2026.</p>';
     document.body.appendChild(card);
+    if (window.smCount) window.smCount("offer_shown");
     card.querySelector(".offer-x").addEventListener("click", close);
     // The booking form opens as usual (js/site.js, js/deck.js), with the offer on.
     card.querySelector(".offer-book").addEventListener("click", function () { claim(); setTimeout(close, 0); });

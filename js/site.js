@@ -85,13 +85,9 @@
   function mark(fields) {
     $$("[data-f]", form).forEach(function (el) { el.classList.toggle("bad", fields.indexOf(el.getAttribute("data-f")) !== -1); });
   }
-  // The 10% first-package offer, when claimed (js/offer.js): it leads the
-  // notes, so the email alert and the app show it.
+  // The 10% first-package offer, when claimed (js/offer.js): the request
+  // carries it, so the email alert and the app show it.
   function claimed() { return !!(window.smOffer && window.smOffer.claimed); }
-  function withClaim(notes) {
-    if (!claimed()) return notes;
-    return (window.smOffer.note + (notes ? "\n" + notes : "")).slice(0, 1000);
-  }
   function body() {
     var v = function (n) { var el = form.elements[n]; return el ? String(el.value || "").trim() : ""; };
     return {
@@ -107,7 +103,8 @@
       contact_name: v("contact_name"),
       contact_email: v("contact_email"),
       contact_phone: v("contact_phone"),
-      notes: withClaim(v("notes")),
+      notes: v("notes"),
+      offer: claimed() ? window.smOffer.code : "",
       adult_confirmed: form.adult_confirmed.checked,
       company: v("company"),
     };

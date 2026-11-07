@@ -53,3 +53,20 @@ test("the old admin page and its password-only Stripe endpoints are gone", () =>
 test("Kyron's push helper isn't served", () => {
   assert.match(read(".vercelignore"), /^push-to-github\.bat$/m);
 });
+
+test("the details page: never indexed, and its checkout id never leaves in a Referer", () => {
+  const html = read("details.html");
+  assert.match(html, /<meta name="robots" content="noindex">/);
+  assert.match(html, /<meta name="referrer" content="no-referrer">/);
+  assert.doesNotMatch(read("sitemap.xml"), /details/);
+});
+
+test("counts: the live site only, never with Global Privacy Control, and each page says which visit it is", () => {
+  const js = read("js/count.js");
+  assert.match(js, /host !== "www\.subjectmedias\.com" && host !== "subjectmedias\.com"/);
+  assert.match(js, /globalPrivacyControl === true/);
+  assert.doesNotMatch(js, /document\.cookie|localStorage|sessionStorage|indexedDB/);
+  assert.match(read("index.html"), /<body data-count="visit_home">/);
+  assert.match(read("fellowship.html"), /<body data-count="visit_fellowship">/);
+  assert.doesNotMatch(read("details.html"), /count\.js/);
+});

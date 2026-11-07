@@ -598,3 +598,13 @@ html.deck-on .sheet { display: flex; }
 @media (prefers-reduced-motion: reduce) {
   .offer { transition: none; transform: none; }
 }
+
+/* ── /details: after a direct Buy ─────────────────────────────────── */
+.details-page .head { position: sticky; }
+.details { min-height: calc(100vh - var(--head-h)); }
+.details .h2 { margin: 0; }
+.details .done h2 { margin: 0 0 8px; font-weight: 900; font-stretch: 112%; font-size: clamp(1.8rem, 3vw, 2.6rem); line-height: 0.95; text-transform: uppercase; color: var(--green); }
+.details .done .form-msg { margin: 0; }
+/* Phones: the form right under the thanks; the steps say what the lede already does. */
+@media (max-width: 900px) { .details { padding-block: 2.25rem 3.5rem; } .details .book-steps { display: none; } .details .alt { margin-top: 0; } }
+

@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tell us about the game: Subject Medias</title>
+<meta name="description" content="Thanks for booking. Tell us where and when the game is, so we can line up your creator.">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/svg+xml" href="/media/v2/mark.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="/css/site.css">
+<script>document.documentElement.classList.add("js");</script>
+<script defer src="/js/details.js"></script>
+</head>
+<body class="details-page">
+<header class="head solid" data-head>
+  <a class="brand" href="/" aria-label="Subject Medias, home">
+    <svg class="mark" viewBox="0 0 48 48" aria-hidden="true"><rect x="3.5" y="3.5" width="41" height="41" rx="9" fill="none" stroke="currentColor" stroke-width="5"/><path d="M18.5 14.5v19l15.5-9.5z" fill="currentColor"/></svg>
+    <span class="wordmark"><b>Subject</b><b>Media</b></span>
+  </a>
+</header>
+
+<main>
+<section class="book details" id="details" aria-labelledby="details-title">
+  <div class="wrap book-grid">
+    <div>
+      <h1 class="h2" id="details-title">Tell us about the game.</h1>
+      <p class="lede">Thanks for booking. One more step: where and when, so we can line up your creator.</p>
+      <ol class="book-steps">
+        <li><b>You paid.</b>Stripe emails your receipt.</li>
+        <li><b>Tell us about the game.</b>The date, the place, and the team and jersey number.</li>
+        <li><b>We lock your creator.</b>We reach out within 24 hours to confirm.</li>
+      </ol>
+      <p class="alt">Questions? Email <a href="mailto:hello@subjectmedias.com">hello@subjectmedias.com</a> or DM <a href="https://www.instagram.com/subjectmedias/" target="_blank" rel="noopener">@subjectmedias</a>.</p>
+    </div>
+
+    <div data-details-slot>
+      <div class="done" data-details-wait tabindex="-1">
+        <noscript><h2>Thanks for booking.</h2><p>This page needs JavaScript. Or email the date, the city and state, and the team and jersey number to hello@subjectmedias.com, with the email you paid with.</p></noscript>
+        <p class="form-msg" role="status" aria-live="polite" data-details-status>Checking your payment…</p>
+      </div>
+      <form class="form" data-details method="post" action="/api/details" novalidate hidden>
+        <div class="fgrid">
+          <label class="f half" data-f="sport"><span>Sport</span>
+            <select class="select" name="sport">
+              <option value="">Pick one</option>
+              <option>7v7 Football</option><option>Football</option><option>Girls Flag Football</option><option>Basketball</option><option>Volleyball</option><option>Soccer</option><option>Lacrosse</option><option>Track &amp; Field</option><option>Baseball</option><option>Softball</option><option>Wrestling</option><option>Other</option>
+            </select>
+          </label>
+          <label class="f half" data-f="event_date"><span>Date</span>
+            <input class="input" name="event_date" type="date" required>
+          </label>
+          <label class="f" data-f="event_name"><span>Event or game</span>
+            <input class="input" name="event_name" type="text" maxlength="120" placeholder="Pylon Girls Flag, Los Angeles" autocomplete="off">
+          </label>
+          <label class="f two-thirds" data-f="event_city"><span>City</span>
+            <input class="input" name="event_city" type="text" maxlength="80" required autocomplete="address-level2">
+          </label>
+          <label class="f third" data-f="event_state"><span>State</span>
+            <select class="select" name="event_state" required>
+              <option value="">State</option>
+              <option>AL</option><option>AK</option><option>AZ</option><option>AR</option><option>CA</option><option>CO</option><option>CT</option><option>DC</option><option>DE</option><option>FL</option><option>GA</option><option>HI</option><option>ID</option><option>IL</option><option>IN</option><option>IA</option><option>KS</option><option>KY</option><option>LA</option><option>ME</option><option>MD</option><option>MA</option><option>MI</option><option>MN</option><option>MS</option><option>MO</option><option>MT</option><option>NE</option><option>NV</option><option>NH</option><option>NJ</option><option>NM</option><option>NY</option><option>NC</option><option>ND</option><option>OH</option><option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VT</option><option>VA</option><option>WA</option><option>WV</option><option>WI</option><option>WY</option>
+            </select>
+          </label>
+          <label class="f half" data-f="team_jersey"><span>Team and jersey number</span>
+            <input class="input" name="team_jersey" type="text" maxlength="60" placeholder="Lightning #11" autocomplete="off">
+            <small>No names needed. We find your athlete by number.</small>
+          </label>
+          <label class="f half" data-f="athletes"><span>How many athletes?</span>
+            <input class="input" name="athletes" type="number" min="1" max="500" inputmode="numeric" placeholder="1">
+          </label>
+          <label class="f" data-f="contact_phone"><span>Phone <small>(so we can text to confirm)</small></span>
+            <input class="input" name="contact_phone" type="tel" maxlength="30" autocomplete="tel" inputmode="tel">
+          </label>
+          <label class="f" data-f="notes"><span>Anything we should know?</span>
+            <textarea class="textarea" name="notes" maxlength="1000" placeholder="Game times, field number, what you want most."></textarea>
+          </label>
+          <label class="check" data-f="adult_confirmed">
+            <input type="checkbox" name="adult_confirmed" required>
+            <span>I'm 18 or older. If the athlete is under 18, I'm their parent or guardian.</span>
+          </label>
+          <div class="hp" aria-hidden="true"><label>Company <input type="text" name="company" tabindex="-1" autocomplete="off"></label></div>
+        </div>
+        <div class="form-foot">
+          <button class="pill pill-green" type="submit">Send the details</button>
+          <p class="form-msg" role="status" aria-live="polite" data-msg></p>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-row">
+      <p>&copy; 2026 Subject Medias.</p>
+      <p class="foot-links">
+        <a href="mailto:hello@subjectmedias.com">hello@subjectmedias.com</a>
+        <a href="https://www.instagram.com/subjectmedias/" target="_blank" rel="noopener">Instagram</a>
+      </p>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
