@@ -91,3 +91,27 @@ test("pay now: each priced package's Buy button and the form's checkout are the 
   }
   assert.match(js, /var PRICES = \{ photo: \["Photo coverage", "\$49\.99"\], video: \["Video coverage", "\$99\.99"\], elite: \["Elite coverage", "\$139\.99"\] \};/);
 });
+
+// The browser protections on the site's own pages, files and functions. The
+// TOJ app's pages the site passes through (/m/, /c/, the creator API) send
+// their own, stricter ones (the family pages' no-referrer keeps their links'
+// tokens private), so this rule leaves them alone.
+test("browser protections: on the site's own paths, never on the app's pages it passes through", () => {
+  const rule = JSON.parse(read("vercel.json")).headers.find((h) => h.headers.some((x) => x.key === "X-Frame-Options"));
+  assert.ok(rule, "the rule is there");
+  const set = Object.fromEntries(rule.headers.map((x) => [x.key, x.value]));
+  assert.deepEqual(set, {
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Content-Security-Policy": "frame-ancestors 'none'",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+  });
+  // No path-to-regexp parameters in it, so as a regular expression it matches
+  // what Vercel matches.
+  assert.equal(rule.source, "/((?!m/|c/|api/creators/public/).*)");
+  const covers = (p) => new RegExp("^" + rule.source + "$").test(p);
+  for (const p of ["/", "/fellowship", "/details", "/index.html", "/js/site.js", "/css/site.css", "/media/v2/og.jpg", "/api/book", "/api/stripe-webhook", "/robots.txt", "/m", "/creators"]) assert.ok(covers(p), p);
+  for (const p of ["/m/", "/m/lima-2027", "/m/lima-2027/clips", "/c/kyron", "/api/creators/public/kyron"]) assert.ok(!covers(p), p);
+  for (const r of JSON.parse(read("vercel.json")).rewrites.filter((x) => /^https:/.test(x.destination) && x.source !== "/api/sm/site/count")) assert.ok(!covers(r.source.replace(/:[a-z]+\*?/g, "x")), `the app's page ${r.source} keeps its own headers`);
+});
