@@ -1,0 +1,7 @@
+# subjectmedias.com
+# The marketplace's event pages (/m/) carry their own noindex, so crawlers
+# may visit them and see it; the functions under /api/ aren't pages.
+User-agent: *
+Disallow: /api/
+
+Sitemap: https://www.subjectmedias.com/sitemap.xml
