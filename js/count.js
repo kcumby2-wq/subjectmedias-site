@@ -1,5 +1,5 @@
 // The site's own counts: how often a page is opened, and how often people
-// open the booking form or tap Buy (js/offer.js adds the 10% offer showing).
+// open the request form or tap through to book.
 // Each one is a bare POST to /api/sm/site/count?e=<name>, which subjectmedias
 // rewrites to the TOJ app, where it's one more in that day's total. No cookie,
 // nothing stored here, nothing about who: the app keeps totals per day only
@@ -24,13 +24,12 @@
   var page = document.body && document.body.getAttribute("data-count");
   if (page) count(page);
 
-  // A Buy tap is a package's Buy button (the price cards' links; on phones,
-  // the package buttons on the prices screen) or any payment link. Photo,
-  // video and elite open the form before Stripe, so a Buy tap isn't a
-  // checkout: set it beside requests sent and payments. Any other way into
-  // the form is a form open. Capture, so it counts even when another handler
-  // stops the click.
-  var BUY = '[data-buy], a[href^="https://buy.stripe.com/"], [data-open-book][data-package="photo"], [data-open-book][data-package="video"], [data-open-book][data-package="elite"]';
+  // A Buy tap is a tap through to book and pay: a package or Book coverage
+  // link to the SportsClippers page (data-sc-book; the booking and payment
+  // happen there, so a tap isn't a sale) or the transcript's Stripe link. Any
+  // other way into the request form is a form open. Capture, so it counts
+  // even when another handler stops the click.
+  var BUY = '[data-sc-book], [data-buy], a[href^="https://buy.stripe.com/"]';
   document.addEventListener("click", function (e) {
     var t = e.target && e.target.closest ? e.target : null;
     if (!t) return;

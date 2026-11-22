@@ -4,7 +4,8 @@
 // tablets and phones without JavaScript keep the scrolling page.
 //
 // - Every screen can open the booking form, which slides up over the screens.
-//   A package or a team/event button opens it already set to that choice.
+//   A team or event button opens it already set to that choice. The
+//   packages and Book coverage go to the SportsClippers page instead.
 // - Swipe, tap the right side to go on and the left side to go back, or use
 //   the arrow keys. The bars at the top show where you are.
 // - Only the screen in view plays, and the next one loads ahead. With reduced

@@ -1,6 +1,8 @@
 // The homepage's small bits of behavior: the viewfinder, the header, and the
-// booking form, which posts to /api/book (api/book.js passes it to the TOJ
-// app, where Kyron gets the alert).
+// request form, which posts to /api/book (api/book.js passes it to the TOJ
+// app, where Kyron gets the alert). One athlete's game is booked and paid on
+// SportsClippers (the package links go there); the form is for teams, events,
+// a player transcript, and anyone not sure which package fits.
 (function () {
   "use strict";
 
@@ -50,10 +52,8 @@
   if (!form) return;
   var msg = $("[data-msg]", form);
   var EMAIL = "hello@subjectmedias.com";
+  // The transcript is still paid here, on Stripe.
   var PAY = {
-    photo: ["Pay for photo coverage", "https://buy.stripe.com/28E00kgz1dmqckMcgxebu04"],
-    video: ["Pay for video coverage", "https://buy.stripe.com/eVqfZidmP5TY70seoFebu05"],
-    elite: ["Pay for elite coverage", "https://buy.stripe.com/dRm14o82vbeidoQ5S9ebu03"],
     transcript: ["Pay for the transcript", "https://buy.stripe.com/dRmcN61E7gyC98Aa8pebu02"],
   };
 
@@ -85,9 +85,6 @@
   function mark(fields) {
     $$("[data-f]", form).forEach(function (el) { el.classList.toggle("bad", fields.indexOf(el.getAttribute("data-f")) !== -1); });
   }
-  // The 10% first-package offer, when claimed (js/offer.js): the request
-  // carries it, so the email alert and the app show it.
-  function claimed() { return !!(window.smOffer && window.smOffer.claimed); }
   function body() {
     var v = function (n) { var el = form.elements[n]; return el ? String(el.value || "").trim() : ""; };
     return {
@@ -104,8 +101,6 @@
       contact_email: v("contact_email"),
       contact_phone: v("contact_phone"),
       notes: v("notes"),
-      offer: claimed() ? window.smOffer.code : "",
-      pay_now: payNow,
       adult_confirmed: form.adult_confirmed.checked,
       company: v("company"),
     };
@@ -136,7 +131,7 @@
     });
     msg.appendChild(b);
   }
-  // The package's payment link, carrying this request's id so the payment
+  // The transcript's payment link, carrying this request's id so the payment
   // joins it in the TOJ app, with the booker's email filled in.
   function payLink(url, id, email) {
     var q = [];
@@ -150,105 +145,13 @@
     slot.innerHTML =
       '<div class="done" tabindex="-1"><h3>Got it.</h3>' +
       "<p>We'll reach out within 24 hours to lock your creator" + (b.contact_phone ? " by text or call" : " by email") + ". Keep an eye out for a message from " + EMAIL + ".</p>" +
-      (claimed()
-        ? "<p>Your 10% off is noted. When we confirm, we'll send your payment link with it taken off.</p>"
-        : pay ? '<p>Want it locked in now? Pay for the package and we\'ll match it to this request.</p><div class="btns"><a class="pill pill-green" href="' + payLink(pay[1], id, b.contact_email).replace(/"/g, "&quot;") + '">' + pay[0] + "</a></div>" : "") +
+      (pay ? '<p>Want it locked in now? Pay for the transcript and we\'ll match it to this request.</p><div class="btns"><a class="pill pill-green" href="' + payLink(pay[1], id, b.contact_email).replace(/"/g, "&quot;") + '">' + pay[0] + "</a></div>" : "") +
       "</div>";
     var done = $(".done", slot);
     if (done) done.focus();
   }
 
-  // ── Pay now ──────────────────────────────────────────────────────────
-  // A package's Buy button (photo, video or elite) opens this form set to pay
-  // now. Sending it saves the request, then takes the booker straight on to
-  // that package's Stripe checkout with the request's id and their email, so
-  // the payment joins the request in the TOJ app and the game's details come
-  // with it. With the 10% offer claimed it stays a request: the 10% comes off
-  // by hand when we confirm. Anything else that opens the form is a request.
-  var PRICES = { photo: ["Photo coverage", "$49.99"], video: ["Video coverage", "$99.99"], elite: ["Elite coverage", "$139.99"] };
-  var payNow = false;
-  var submitBtn = $("button[type=submit]", form);
-  var SEND = submitBtn.textContent;
-  var lede = $("#book .lede"), LEDE = lede ? lede.textContent : "";
-  var sheetSub = $("[data-sheet] .sheet-head p"), SHEET_SUB = sheetSub ? sheetSub.textContent : "";
-  var payNote = document.createElement("p");
-  payNote.className = "pay-note";
-  payNote.hidden = true;
-  payNote.innerHTML = 'Next: Stripe\'s secure checkout, and your details go with your payment. <button type="button" data-request-instead>Rather talk first? Send a request instead.</button>';
-  form.insertBefore(payNote, $(".form-foot", form));
-
-  function setPay(on) {
-    var p = PRICES[form.package.value];
-    payNow = !!on && !!p && !claimed();
-    submitBtn.textContent = payNow ? "Continue to payment, " + p[1] : SEND;
-    payNote.hidden = !payNow;
-    if (lede) lede.textContent = payNow ? "Two minutes, then Stripe's secure checkout. Your details go with your payment." : LEDE;
-    if (sheetSub) sheetSub.textContent = payNow ? p[0] + ", " + p[1] + ". Two minutes, then checkout." : SHEET_SUB;
-  }
-  $("[data-request-instead]", payNote).addEventListener("click", function () { setPay(false); submitBtn.focus(); });
-  form.package.addEventListener("change", function () { setPay(payNow); });
-
-  // Which way the form opens: a priced package's button (the price cards' Buy
-  // buttons, the phone screens' package buttons) pays now; any other way in is
-  // a request. Capture, so it's set before js/deck.js opens the sheet.
-  document.addEventListener("click", function (e) {
-    var t = e.target && e.target.closest ? e.target.closest("[data-buy], [data-open-book], a[href='#book']") : null;
-    // Once a request is sent the form gives way to the thank-you panel: from
-    // then on the Buy buttons are plain links to Stripe again.
-    if (!t || form.contains(t) || !form.isConnected) return;
-    var pkg = t.getAttribute("data-buy") || t.getAttribute("data-package");
-    if (!PRICES[pkg]) { if (!t.hasAttribute("data-buy")) setPay(false); return; }
-    var athlete = $("input[name=kind][value=athlete]", form);
-    if (athlete && !athlete.checked) { athlete.checked = true; syncKind(); }
-    form.package.value = pkg;
-    setPay(true);
-    // The price cards' Buy buttons go to Stripe without the form only when
-    // this script can't run; here they bring the form up first.
-    if (t.hasAttribute("data-buy") && !document.documentElement.classList.contains("deck-on")) {
-      e.preventDefault();
-      var book = document.getElementById("book");
-      if (book) book.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
-      setTimeout(function () { form.event_date.focus({ preventScroll: true }); }, reduce ? 0 : 450);
-    }
-  }, true);
-
-  // The request is saved: on to Stripe. If it couldn't be saved, they can
-  // still pay (the payment arrives as a booking of its own) or write to us.
   var sending = false;
-  var checkoutUrl = "";
-  function toCheckout(b, id) {
-    checkoutUrl = payLink(PAY[b.package][1], id, b.contact_email);
-    say("Taking you to checkout…", false);
-    window.location.assign(checkoutUrl);
-  }
-  // Back from Stripe without paying, with the page as it was left: the
-  // details are saved, so offer the same checkout rather than a stuck form.
-  window.addEventListener("pageshow", function (e) {
-    if (!e.persisted || !checkoutUrl) return;
-    sending = false;
-    submitBtn.disabled = false;
-    msg.textContent = "Your details are saved. ";
-    msg.classList.remove("err");
-    var a = document.createElement("a");
-    a.className = "pill pill-green";
-    a.style.minHeight = "38px";
-    a.style.padding = "0.5em 1em";
-    a.href = checkoutUrl;
-    a.textContent = "Continue to payment";
-    msg.appendChild(a);
-  });
-  function payAnyway(b, text) {
-    fallback(text);
-    var a = document.createElement("a");
-    a.className = "pill pill-green";
-    a.style.minHeight = "38px";
-    a.style.padding = "0.5em 1em";
-    a.href = payLink(PAY[b.package][1], null, b.contact_email);
-    a.textContent = "Pay now, tell us about the game after";
-    msg.appendChild(document.createTextNode(" "));
-    msg.appendChild(a);
-  }
-
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     if (sending) return;
@@ -263,16 +166,11 @@
     fetch("/api/book", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (data) { return { status: r.status, data: data }; }); })
       .then(function (res) {
-        if (res.status === 200 && res.data && res.data.ok) {
-          if (b.pay_now && PAY[b.package]) { toCheckout(b, res.data.id); return "leaving"; }
-          return success(b, res.data.id);
-        }
+        if (res.status === 200 && res.data && res.data.ok) return success(b, res.data.id);
         if (res.status === 400 && res.data && res.data.fields) { mark(res.data.fields); say("Check the highlighted fields.", true); return; }
-        var text = res.status === 429 ? "That's a lot of requests from here." : "We couldn't send it just now.";
-        if (b.pay_now && PAY[b.package]) return payAnyway(b, text);
-        fallback(text);
+        fallback(res.status === 429 ? "That's a lot of requests from here." : "We couldn't send it just now.");
       })
-      .catch(function () { if (b.pay_now && PAY[b.package]) payAnyway(b, "We couldn't send it just now."); else fallback("We couldn't send it just now."); })
-      .then(function (r) { sending = false; if (r !== "leaving") btn.disabled = false; });
+      .catch(function () { fallback("We couldn't send it just now."); })
+      .then(function () { sending = false; btn.disabled = false; });
   });
 })();
