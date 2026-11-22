@@ -109,25 +109,63 @@ test("counts: the live site only, never with Global Privacy Control, and each pa
   assert.doesNotMatch(read("details.html"), /count\.js/);
 });
 
-test("counts: a package's Buy is a Buy tap on phones too", () => {
-  const js = read("js/count.js"), html = read("index.html");
-  // Every package button on the phones' prices screen is named in the Buy
-  // taps, so the same choice counts the same way on every screen.
-  const phone = [...html.matchAll(/<button type="button" data-open-book data-package="([a-z]+)"/g)].map((m) => m[1]);
-  assert.deepEqual(phone.sort(), ["elite", "photo", "video"]);
-  for (const pkg of phone) assert.ok(js.includes(`[data-open-book][data-package="${pkg}"]`), pkg);
+// One athlete's game is booked and paid on Kyron's SportsClippers page, at
+// that page's prices. Change a price there, change it here (and here).
+const SC_BOOK = "https://www.sportsclippers.com/creators/Kyron";
+const SC_PACKAGES = [["Photos", "50"], ["Video", "100"], ["Bundle", "125"], ["Mixtape", "150"], ["Full bundle", "250"]];
+
+test("packages: the SportsClippers page's five, at its prices, on computers, phones and in the search data", () => {
+  const html = read("index.html");
+  const cards = [...html.matchAll(/<article class="plan">\s*<h3>([^<]+)<\/h3>\s*<p class="price"><sup>\$<\/sup><b>(\d+)<\/b><\/p>/g)].map((m) => [m[1], m[2]]);
+  assert.deepEqual(cards, SC_PACKAGES, "the computer price cards");
+  const phone = [...html.matchAll(/<span class="dk-p-name">([^<]+)<\/span><span class="dk-p-what">[^<]+<\/span><span class="dk-p-price">\$(\d+)<\/span>/g)].map((m) => [m[1], m[2]]);
+  assert.deepEqual(phone, SC_PACKAGES, "the phone prices screen");
+  const ld = JSON.parse(/<script type="application\/ld\+json">\s*([\s\S]*?)\s*<\/script>/.exec(html)[1]);
+  assert.deepEqual(ld.makesOffer.map((o) => [o.name.replace(/ package$/, ""), o.price, o.url]), SC_PACKAGES.map(([n, p]) => [n, p, SC_BOOK]));
+  // "From $50." in the search text, the hero and the first phone screen: the Photos package's price.
+  const from = [...html.matchAll(/From \$(\d+)\./g)].map((m) => m[1]);
+  assert.deepEqual(from, ["50", "50", "50", "50"]);
+  // The old packages and their prices are gone.
+  assert.doesNotMatch(html, /\$49|\$99\.99|\$139|[Ee]lite|Most booked|data-package=/);
+});
+
+test("packages: every booking link opens the SportsClippers page in a new tab and counts as a Buy tap", () => {
+  const html = read("index.html");
+  const links = [...html.matchAll(/<a [^>]*data-sc-book[^>]*>/g)].map((m) => m[0]);
+  // The header, the computer hero, the five cards, the note by the form, and
+  // on phones the first screen, the five packages and the booking screen.
+  assert.equal(links.length, 15);
+  for (const a of links) {
+    assert.ok(a.includes(`href="${SC_BOOK}"`), a);
+    assert.ok(a.includes('target="_blank"') && a.includes('rel="noopener"'), a);
+  }
+  for (const label of ["head-cta", "dk-big"]) assert.ok(links.some((a) => a.includes(label)), label);
+  // Nothing else that says "Book coverage" opens our request form.
+  for (const m of html.matchAll(/<a [^>]*>Book coverage<\/a>/g)) assert.match(m[0], /data-sc-book/, m[0]);
+  const js = read("js/count.js");
+  assert.match(js, /var BUY = '\[data-sc-book\], /);
   assert.match(js, /if \(t\.closest\(BUY\)\) count\("buy_tap"\);\s*else if/);
 });
 
-test("pay now: each priced package's Buy button and the form's checkout are the same Stripe link", () => {
+test("the request form: teams, events, the transcript and not-sure, never a package SportsClippers sells", () => {
   const html = read("index.html"), js = read("js/site.js");
-  for (const pkg of ["photo", "video", "elite", "transcript"]) {
-    const btn = new RegExp(`href="(https://buy\\.stripe\\.com/[A-Za-z0-9]+)" data-buy="${pkg}"`).exec(html);
-    const pay = new RegExp(`${pkg}: \\["[^"]+", "(https://buy\\.stripe\\.com/[A-Za-z0-9]+)"\\]`).exec(js);
-    assert.ok(btn && pay, pkg);
-    assert.equal(btn[1], pay[1], `${pkg}: the Buy button and the form go to the same checkout`);
+  const sel = /<select class="select" name="package">([\s\S]*?)<\/select>/.exec(html)[1];
+  assert.deepEqual([...sel.matchAll(/<option value="([a-z]+)">/g)].map((m) => m[1]), ["unsure", "transcript", "team", "event"]);
+  // The transcript is still paid on Stripe: its Buy button and the form's
+  // payment link are the same checkout, and it's the only one.
+  const btn = /href="(https:\/\/buy\.stripe\.com\/[A-Za-z0-9]+)" data-buy="transcript"/.exec(html);
+  const pay = /transcript: \["[^"]+", "(https:\/\/buy\.stripe\.com\/[A-Za-z0-9]+)"\]/.exec(js);
+  assert.ok(btn && pay);
+  assert.equal(btn[1], pay[1]);
+  assert.equal([...(html + js).matchAll(/https:\/\/buy\.stripe\.com\/[A-Za-z0-9]+/g)].filter((m) => m[0] !== btn[1]).length, 0, "no other Stripe link");
+  assert.doesNotMatch(js, /pay_now|PRICES|smOffer|offer:/);
+});
+
+test("the 10% first-package offer is off: SportsClippers' checkout can't take it", () => {
+  assert.ok(!fs.existsSync(path.join(ROOT, "js/offer.js")));
+  for (const f of ["index.html", "fellowship.html", "css/site.css", ...fs.readdirSync(path.join(ROOT, "js")).map((f) => "js/" + f)]) {
+    assert.doesNotMatch(read(f), /offer\.js|first10|10% off|\.offer[\s{-]/, f);
   }
-  assert.match(js, /var PRICES = \{ photo: \["Photo coverage", "\$49\.99"\], video: \["Video coverage", "\$99\.99"\], elite: \["Elite coverage", "\$139\.99"\] \};/);
 });
 
 // The browser protections on the site's own pages, files and functions. The
